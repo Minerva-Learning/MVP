@@ -90,6 +90,11 @@ if ($continueLocalPatch.ToLower() -eq "yes") {
     Push-Location "..\..\"
     Push-Location "aspnet-core\src\Lean.Web.Host"
     ReplaceInFile -file "appsettings.json" -ph "LeanPlaceholderDb" -val "$($rawProjName)Db"
+    
+    Push-Location "..\Lean.Migrator"
+    ReplaceInFile -file "appsettings.json" -ph "LeanPlaceholderDb" -val "$($rawProjName)Db"
+    Pop-Location
+
     $appSettingsFileName = "appsettings.$envName.json"
     ReplaceConnectionStr -file $appSettingsFileName
     

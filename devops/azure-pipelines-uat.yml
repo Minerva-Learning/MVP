@@ -1,6 +1,8 @@
 trigger:
 - uat
 
+pr: none
+
 variables:
 - group: UAT-Variables
 
