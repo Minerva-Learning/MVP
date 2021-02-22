@@ -1,6 +1,6 @@
 {
-  "remoteServiceBaseUrl": "%%AzureDev__API_URL%%",
-  "appBaseUrl": "%%AzureDev__CLIENT_URL%%",
+  "remoteServiceBaseUrl": "https://minervalearning-api-dev.azurewebsites.net",
+  "appBaseUrl": "https://minervalearning-dev.azurewebsites.net",
   "localeMappings": {
     "angular": [
       {

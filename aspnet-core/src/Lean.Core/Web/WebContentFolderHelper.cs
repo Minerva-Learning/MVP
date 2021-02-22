@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using Abp.Reflection.Extensions;
@@ -20,7 +20,7 @@ namespace Lean.Web
             }
 
             var directoryInfo = new DirectoryInfo(coreAssemblyDirectoryPath);
-            while (!DirectoryContains(directoryInfo.FullName, "Lean.Web.sln"))
+            while (!DirectoryContains(directoryInfo.FullName, "MinervaLearning.Web.sln"))
             {
                 if (directoryInfo.Parent == null)
                 {
