@@ -18,7 +18,8 @@
               "angular2-text-mask",
               "angular2-counto",
               "rxjs/internal/observable/throwError",
-              "lodash"
+              "lodash",
+              "angular2-counto"
             ],
             "aot": true,
             "outputPath": "dist",
