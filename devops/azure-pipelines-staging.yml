@@ -1,0 +1,8 @@
+trigger:
+- release
+
+variables:
+- group: Staging-Variables
+
+stages:
+- template: all-stages.yml

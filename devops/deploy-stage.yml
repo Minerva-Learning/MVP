@@ -1,0 +1,36 @@
+stages:
+- stage: deploy
+  dependsOn: migrate
+  displayName: 'Deploy Applications'
+  jobs:
+  - job: 
+    displayName: 'Deploy Applications'
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'current'
+        artifactName: 'website'
+        targetPath: '$(Pipeline.Workspace)\website'
+
+    - task: AzureRmWebAppDeployment@4
+      displayName: 'Deploy Azure App Service [Api]'
+      inputs:
+        azureSubscription: $(azConnection)
+        WebAppName: '$(azApiApp)'
+        packageForLinux: '$(Pipeline.Workspace)\website\$(abpProject).Web.Host.zip'
+
+
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'current'
+        artifactName: 'angular'
+        targetPath: '$(Pipeline.Workspace)\angular'
+
+    - task: AzureRmWebAppDeployment@4
+      displayName: 'Azure App Service Deploy [Client App]'
+      inputs:
+        azureSubscription: $(azConnection)
+        WebAppName: '$(azSiteApp)'
+        packageForLinux: '$(Pipeline.Workspace)\angular\angular-app.zip'

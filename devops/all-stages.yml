@@ -1,0 +1,6 @@
+stages:
+- template: build-stage.yml
+
+- template: migrate-stage.yml
+
+- template: deploy-stage.yml

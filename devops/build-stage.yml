@@ -1,0 +1,108 @@
+stages:
+- stage: build
+  displayName: 'Build Applications'
+  jobs:
+  - job: 
+    displayName: 'Build .Net projects'
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: 'Build WebSite & Migrator'
+      inputs:
+        command: 'build'
+        arguments: '-c $(buildConfig)'
+        projects: |
+          **\$(abpProject).Web.Host\$(abpProject).Web.Host.csproj
+          **\$(abpProject).Migrator\$(abpProject).Migrator.csproj
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish WebSite'
+      inputs:
+        command: 'publish'
+        publishWebProjects: false
+        projects: '**\$(abpProject).Web.Host\$(abpProject).Web.Host.csproj'
+        arguments: '--configuration $(buildConfig) --output $(Build.ArtifactStagingDirectory)'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish Migrator'
+      inputs:
+        command: 'publish'
+        publishWebProjects: false
+        projects: '**\$(abpProject).Migrator\$(abpProject).Migrator.csproj'
+        arguments: '--configuration $(buildConfig) --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: false
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Migrator Artifact'
+      inputs:
+        targetPath: '$(Build.ArtifactStagingDirectory)/$(abpProject).Migrator'
+        artifact: 'migrator'
+        publishLocation: 'pipeline'
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish WebSite Artifact'
+      inputs:
+        targetPath: '$(Build.ArtifactStagingDirectory)/$(abpProject).Web.Host.zip'
+        artifact: 'website'
+        publishLocation: 'pipeline'
+
+
+  - job: 
+    displayName: 'Build Angular Applications'
+    pool:
+      vmImage: 'windows-latest'
+    variables:
+      YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
+    steps:
+    # - task: Cache@2
+    #   displayName: Cache Yarn packages
+    #   inputs:
+    #     key: 'yarn | "$(Agent.OS)" | yarn.lock'
+    #     restoreKeys: |
+    #       yarn | "$(Agent.OS)"
+    #       yarn
+    #     path: $(YARN_CACHE_FOLDER)
+    - task: Cache@2
+      inputs:
+        key: '$(System.DefaultWorkingDirectory)\angular\yarn.lock'
+        path: '$(System.DefaultWorkingDirectory)\angular\node_modules'
+        cacheHitVar: 'mainModulesCacheRestored'
+
+    - task: UseNode@1
+      displayName: 'Use Node.js 12.x'
+      inputs:
+        version: '12.x'
+
+    - task: YarnInstaller@3
+      displayName: 'Use yarn 1.x'
+      inputs:
+        versionSpec: '1.x'
+
+    - task: Yarn@3
+      displayName: 'Main - Yarn install'
+      inputs:
+        projectDirectory: 'angular'
+
+    - task: Npm@1
+      displayName: 'Build Main Angular'
+      inputs:
+        command: 'custom'
+        workingDir: 'angular'
+        customCommand: 'run publish-$(environment)'
+
+    - task: ArchiveFiles@2
+      displayName: 'Archive angular/dist'
+      inputs:
+        rootFolderOrFile: 'angular/dist'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/angular-app.zip'
+        replaceExistingArchive: true
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Angular Artifact'
+      inputs:
+        targetPath: '$(Build.ArtifactStagingDirectory)/angular-app.zip'
+        artifact: 'angular'
+        publishLocation: 'pipeline'

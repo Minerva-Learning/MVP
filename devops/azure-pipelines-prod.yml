@@ -1,0 +1,8 @@
+trigger:
+- master
+
+variables:
+- group: Production-Variables
+
+stages:
+- template: all-stages.yml

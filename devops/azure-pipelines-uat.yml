@@ -1,0 +1,8 @@
+trigger:
+- uat
+
+variables:
+- group: UAT-Variables
+
+stages:
+- template: all-stages.yml

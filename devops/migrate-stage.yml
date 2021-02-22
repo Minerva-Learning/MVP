@@ -1,0 +1,25 @@
+stages:  
+- stage: migrate
+  displayName: 'Apply DB Migrations'
+  dependsOn: build
+  jobs:
+  - job: 
+    displayName: 'Apply DB Migrations'
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'current'
+        artifactName: 'migrator'
+        targetPath: '$(Pipeline.Workspace)\migrator'
+
+    - task: PowerShell@2
+      displayName: 'Apply DB Migrations'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $env:ASPNETCORE_ENVIRONMENT="$(environment)"
+          .\$(abpProject).Migrator.exe -s
+        failOnStderr: true
+        workingDirectory: '$(Pipeline.Workspace)\migrator'

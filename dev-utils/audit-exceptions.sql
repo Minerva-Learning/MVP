@@ -1,0 +1,20 @@
+SELECT top 100
+	[Id]
+    ,[ServiceName]
+    ,[MethodName]
+    ,[Exception]
+    ,[ExecutionDuration]
+    ,[TenantId]
+    ,[UserId]
+    ,[ClientIpAddress]
+    ,[Parameters]
+    ,[ClientName]
+    ,[CustomData]
+    ,[ExecutionTime]
+    ,[ImpersonatorTenantId]
+    ,[ImpersonatorUserId]
+    ,[BrowserInfo]
+    ,[ReturnValue]
+FROM [AbpAuditLogs]
+WHERE Exception IS NOT NULL
+ORDER BY Id DESC

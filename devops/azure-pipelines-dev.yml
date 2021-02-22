@@ -1,0 +1,8 @@
+trigger:
+- develop
+
+variables:
+- group: Dev-Variables
+
+stages:
+- template: all-stages.yml
