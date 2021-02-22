@@ -52,6 +52,15 @@ namespace Lean.Migrations.Seed.Tenants
                 _context.SaveChanges();
             }
 
+            //Student role
+
+            var studentRole = _context.Roles.IgnoreQueryFilters().FirstOrDefault(r => r.TenantId == _tenantId && r.Name == StaticRoleNames.Tenants.Student);
+            if (studentRole == null)
+            {
+                _context.Roles.Add(new Role(_tenantId, StaticRoleNames.Tenants.Student, StaticRoleNames.Tenants.Student) { IsStatic = true, IsDefault = false });
+                _context.SaveChanges();
+            }
+
             //admin user
 
             var adminUser = _context.Users.IgnoreQueryFilters().FirstOrDefault(u => u.TenantId == _tenantId && u.UserName == AbpUserBase.AdminUserName);

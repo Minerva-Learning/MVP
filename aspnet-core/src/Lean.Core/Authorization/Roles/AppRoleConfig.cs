@@ -30,6 +30,12 @@ namespace Lean.Authorization.Roles
                     StaticRoleNames.Tenants.User,
                     MultiTenancySides.Tenant)
                 );
+
+            roleManagementConfig.StaticRoles.Add(
+                new StaticRoleDefinition(
+                    StaticRoleNames.Tenants.Student,
+                    MultiTenancySides.Tenant)
+                );
         }
     }
 }
