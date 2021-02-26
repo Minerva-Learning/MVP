@@ -12,6 +12,7 @@ using Lean.MultiTenancy.Accounting;
 using Lean.MultiTenancy.Payments;
 using Lean.Storage;
 using Lean.Lessons;
+using Lean.UserLessonsProgress;
 
 namespace Lean.EntityFrameworkCore
 {
@@ -48,6 +49,12 @@ namespace Lean.EntityFrameworkCore
         public virtual DbSet<Problem> Problems { get; set; }
 
         public virtual DbSet<ProblemAnswerOption> ProblemAnswerOptions { get; set; }
+
+        public virtual DbSet<UserLearningProgress> UserLearningProgresses { get; set; }
+
+        public virtual DbSet<UserProblemResult> UserProblemResults { get; set; }
+
+        public virtual DbSet<UserProblemAnswerOptionResult> UserProblemAnswerOptionResults { get; set; }
 
 
         public LeanDbContext(DbContextOptions<LeanDbContext> options)
@@ -136,6 +143,28 @@ namespace Lean.EntityFrameworkCore
 
             modelBuilder.Entity<ProblemAnswerOption>(x =>
             {
+            });
+
+            modelBuilder.Entity<UserLearningProgress>(x =>
+            {
+                x.HasOne(e => e.UserFk).WithOne(e => e.LearningProgressFk)
+                    .HasForeignKey<UserLearningProgress>(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
+                x.HasOne(e => e.CurrentLessonFk).WithMany()
+                    .HasForeignKey(e => e.CurrentLessonId).OnDelete(DeleteBehavior.NoAction);
+                x.HasOne(e => e.CurrentProblemFk).WithMany()
+                    .HasForeignKey(e => e.CurrentProblemId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<UserProblemResult>(x => 
+            {
+                x.HasOne(x => x.UserFk).WithMany().HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.NoAction);
+                x.HasOne(x => x.ProblemFk).WithMany().HasForeignKey(e => e.ProblemId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<UserProblemAnswerOptionResult>(x =>
+            {
+                x.HasOne(x => x.ProblemAnswerOptionFk).WithMany().HasForeignKey(e => e.ProblemAnswerOptionId).OnDelete(DeleteBehavior.NoAction);
+                x.HasOne(x => x.UserProblemResultFk).WithMany().HasForeignKey(e => e.UserProblemResultId).OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.ConfigurePersistedGrantEntity();

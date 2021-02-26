@@ -4,6 +4,7 @@ using Abp.Auditing;
 using Abp.Authorization.Users;
 using Abp.Extensions;
 using Abp.Timing;
+using Lean.UserLessonsProgress;
 
 namespace Lean.Authorization.Users
 {
@@ -25,6 +26,8 @@ namespace Lean.Authorization.Users
         public List<UserOrganizationUnit> OrganizationUnits { get; set; }
 
         //Can add application specific user properties here
+
+        public virtual UserLearningProgress LearningProgressFk { get; set; }
 
         public User()
         {

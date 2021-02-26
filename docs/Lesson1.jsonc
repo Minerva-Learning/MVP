@@ -1,0 +1,111 @@
+[
+  {
+    "name": "Subtractions",
+    "description": null,
+    "modules": [
+      {
+        "name": "Subtraction Basics",
+        "lessons": [
+          {
+            "name": "Lesson 1",
+            "isInitial": true,
+            "lessonText": null,
+            "lessonVideoUrl": "https://youtu.be/aNqG4ChKShI",
+            "activityText": null,
+            "activityVideoUrl": "https://youtu.be/D5Np7ae1VSM",
+            "problemSets": [
+              {
+                "problems": [
+                  {
+                    "name": "SUB1",
+                    "score": 10,
+                    "taskDescription": "7 - 5 =",
+                    "type": "freeText",
+                    "problemAnswerOptions": [{ "isCorrect": true, "text": "2" }]
+                  },
+                  {
+                    "name": "SUB2",
+                    "score": 10,
+                    "taskDescription": "8 - 3 =",
+                    "type": "freeText",
+                    "problemAnswerOptions": [{ "isCorrect": true, "text": "5" }]
+                  },
+                  {
+                    "name": "SUB3",
+                    "score": 10,
+                    "taskDescription": "9 - 2 =",
+                    "type": "freeText",
+                    "problemAnswerOptions": [{ "isCorrect": true, "text": "7" }]
+                  },
+                  {
+                    "name": "SUB4",
+                    "score": 10,
+                    "taskDescription": "Liam has 5 apples but loses 2 of them. How many does he has left?",
+                    "type": "freeText",
+                    "problemAnswerOptions": [{ "isCorrect": true, "text": "3" }]
+                  },
+                  {
+                    "name": "SUB5",
+                    "score": 10,
+                    "taskDescription": "Olivia was holding 8 paper clips but gave 5 to her friend. How many does she have left?",
+                    "type": "freeText",
+                    "problemAnswerOptions": [{ "isCorrect": true, "text": "3" }]
+                  },
+                  {
+                    "name": "SUB6",
+                    "score": 10,
+                    "taskDescription": "Noah had 4 action figures and gave 3 to his brother. How many does he have left?",
+                    "type": "freeText",
+                    "problemAnswerOptions": [{ "isCorrect": true, "text": "1" }]
+                  },
+                  {
+                    "name": "SUB2",
+                    "score": 10,
+                    "taskDescription": "15 - 7 =",
+                    "type": "freeText",
+                    "problemAnswerOptions": [{ "isCorrect": true, "text": "8" }]
+                  },
+                  {
+                    "name": "SUB7",
+                    "score": 10,
+                    "taskDescription": "18 - 9 =",
+                    "type": "freeText",
+                    "problemAnswerOptions": [{ "isCorrect": true, "text": "9" }]
+                  },
+                  {
+                    "name": "SUB8",
+                    "score": 10,
+                    "taskDescription": "12 - 6 =",
+                    "type": "freeText",
+                    "problemAnswerOptions": [{ "isCorrect": true, "text": "6" }]
+                  },
+                  {
+                    "name": "SUB9",
+                    "score": 10,
+                    "taskDescription": "Emma had 17 bouncy balls and gave 9 to her brother. How many does she have left?",
+                    "type": "freeText",
+                    "problemAnswerOptions": [{ "isCorrect": true, "text": "8" }]
+                  },
+                  {
+                    "name": "SUB10",
+                    "score": 10,
+                    "taskDescription": "Oliver had 14 bottles of water and gave 6 to his teammates. How many does he have left?",
+                    "type": "freeText",
+                    "problemAnswerOptions": [{ "isCorrect": true, "text": "8" }]
+                  },
+                  {
+                    "name": "SUB11",
+                    "score": 10,
+                    "taskDescription": "Ava had 12 books and gave 8 away. How many does she have left?",
+                    "type": "freeText",
+                    "problemAnswerOptions": [{ "isCorrect": true, "text": "4" }]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -167,6 +167,9 @@ namespace Lean
             /* ADD YOUR OWN CUSTOM AUTOMAPPER MAPPINGS HERE */
             configuration.RecognizePostfixes("Fk");
             configuration.CreateMap<Lesson, LessonDto>();
+            configuration.CreateMap<Problem, ProblemDto>()
+                .ForMember(x => x.ProblemAnswerOptions, o => o.Condition(x => x.Type == ProblemType.Choise));
+            configuration.CreateMap<ProblemAnswerOption, ProblemAnswerOptionDto>();
         }
     }
 }

@@ -9,6 +9,8 @@ namespace Lean.Lessons
 {
     public interface ILessonsAppService
     {
-        Task<LessonDto> GetCurrentLesson();
+        Task<CurrentLessonDto> GetCurrentLesson();
+
+        Task<CurrentLessonDto> MoveToNextStep();
     }
 }
