@@ -624,6 +624,56 @@ export class AccountServiceProxy {
         }
         return _observableOf<SwitchToLinkedAccountOutput>(<any>null);
     }
+
+    /**
+     * @param code (optional) 
+     * @return Success
+     */
+    sendTestEmail(code: string | null | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/Account/SendTestEmail?";
+        if (code !== undefined && code !== null)
+            url_ += "code=" + encodeURIComponent("" + code) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSendTestEmail(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSendTestEmail(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processSendTestEmail(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
 }
 
 @Injectable()
@@ -6043,6 +6093,69 @@ export class LanguageServiceProxy {
             }));
         }
         return _observableOf<void>(<any>null);
+    }
+}
+
+@Injectable()
+export class LessonsServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    /**
+     * @return Success
+     */
+    getCurrentLesson(): Observable<LessonDto> {
+        let url_ = this.baseUrl + "/api/services/app/Lessons/GetCurrentLesson";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCurrentLesson(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCurrentLesson(<any>response_);
+                } catch (e) {
+                    return <Observable<LessonDto>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<LessonDto>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetCurrentLesson(response: HttpResponseBase): Observable<LessonDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LessonDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<LessonDto>(<any>null);
     }
 }
 
@@ -20328,6 +20441,62 @@ export interface IUpdateLanguageTextInput {
     sourceName: string;
     key: string;
     value: string;
+}
+
+export class LessonDto implements ILessonDto {
+    name!: string | undefined;
+    lessonText!: string | undefined;
+    lessonVideoUrl!: string | undefined;
+    activityText!: string | undefined;
+    activityVideoUrl!: string | undefined;
+    id!: number;
+
+    constructor(data?: ILessonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.lessonText = _data["lessonText"];
+            this.lessonVideoUrl = _data["lessonVideoUrl"];
+            this.activityText = _data["activityText"];
+            this.activityVideoUrl = _data["activityVideoUrl"];
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): LessonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LessonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["lessonText"] = this.lessonText;
+        data["lessonVideoUrl"] = this.lessonVideoUrl;
+        data["activityText"] = this.activityText;
+        data["activityVideoUrl"] = this.activityVideoUrl;
+        data["id"] = this.id;
+        return data; 
+    }
+}
+
+export interface ILessonDto {
+    name: string | undefined;
+    lessonText: string | undefined;
+    lessonVideoUrl: string | undefined;
+    activityText: string | undefined;
+    activityVideoUrl: string | undefined;
+    id: number;
 }
 
 export enum UserNotificationState {

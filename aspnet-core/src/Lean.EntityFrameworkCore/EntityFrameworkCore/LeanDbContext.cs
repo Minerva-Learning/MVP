@@ -11,6 +11,7 @@ using Lean.MultiTenancy;
 using Lean.MultiTenancy.Accounting;
 using Lean.MultiTenancy.Payments;
 using Lean.Storage;
+using Lean.Lessons;
 
 namespace Lean.EntityFrameworkCore
 {
@@ -35,6 +36,19 @@ namespace Lean.EntityFrameworkCore
         public virtual DbSet<SubscriptionPaymentExtensionData> SubscriptionPaymentExtensionDatas { get; set; }
 
         public virtual DbSet<UserDelegation> UserDelegations { get; set; }
+
+        public virtual DbSet<Course> Courses { get; set; }
+
+        public virtual DbSet<Module> Modules { get; set; }
+
+        public virtual DbSet<Lesson> Lessons { get; set; }
+
+        public virtual DbSet<ProblemSet> ProblemSets { get; set; }
+
+        public virtual DbSet<Problem> Problems { get; set; }
+
+        public virtual DbSet<ProblemAnswerOption> ProblemAnswerOptions { get; set; }
+
 
         public LeanDbContext(DbContextOptions<LeanDbContext> options)
             : base(options)
@@ -90,6 +104,38 @@ namespace Lean.EntityFrameworkCore
             {
                 b.HasIndex(e => new { e.TenantId, e.SourceUserId });
                 b.HasIndex(e => new { e.TenantId, e.TargetUserId });
+            });
+
+            modelBuilder.Entity<Course>(x =>
+            {
+                x.Property(e => e.Name).IsRequired();
+                x.HasMany(e => e.Modules).WithOne(e => e.CourseFk).HasForeignKey(e => e.CourseId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Module>(x =>
+            {
+                x.Property(e => e.Name).IsRequired();
+                x.HasMany(e => e.Lessons).WithOne(e => e.ModuleFk).HasForeignKey(e => e.ModuleId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Lesson>(x =>
+            {
+                x.Property(e => e.Name).IsRequired();
+                x.HasMany(e => e.ProblemSets).WithOne(e => e.LessonFk).HasForeignKey(e => e.LessonId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<ProblemSet>(x =>
+            {
+                x.HasMany(e => e.Problems).WithOne(e => e.ProblemSetFk).HasForeignKey(e => e.ProblemSetId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Problem>(x =>
+            {
+                x.HasMany(e => e.ProblemAnswerOptions).WithOne(e => e.ProblemFk).HasForeignKey(e => e.ProblemId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<ProblemAnswerOption>(x =>
+            {
             });
 
             modelBuilder.ConfigurePersistedGrantEntity();

@@ -4,14 +4,16 @@ using Lean.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Lean.Migrations
 {
     [DbContext(typeof(LeanDbContext))]
-    partial class LeanDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210225152834_Add initial lesson entities")]
+    partial class Addinitiallessonentities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1783,7 +1785,7 @@ namespace Lean.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Courses");
+                    b.ToTable("Course");
                 });
 
             modelBuilder.Entity("Lean.Lessons.Lesson", b =>
@@ -1814,9 +1816,6 @@ namespace Lean.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsInitial")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime2");
 
@@ -1833,14 +1832,13 @@ namespace Lean.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ModuleId");
 
-                    b.ToTable("Lessons");
+                    b.ToTable("Lesson");
                 });
 
             modelBuilder.Entity("Lean.Lessons.Module", b =>
@@ -1868,6 +1866,9 @@ namespace Lean.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsInitial")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime2");
 
@@ -1882,7 +1883,7 @@ namespace Lean.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("Modules");
+                    b.ToTable("Module");
                 });
 
             modelBuilder.Entity("Lean.Lessons.Problem", b =>
@@ -1929,7 +1930,7 @@ namespace Lean.Migrations
 
                     b.HasIndex("ProblemSetId");
 
-                    b.ToTable("Problems");
+                    b.ToTable("Problem");
                 });
 
             modelBuilder.Entity("Lean.Lessons.ProblemAnswerOption", b =>
@@ -1952,7 +1953,7 @@ namespace Lean.Migrations
 
                     b.HasIndex("ProblemId");
 
-                    b.ToTable("ProblemAnswerOptions");
+                    b.ToTable("ProblemAnswerOption");
                 });
 
             modelBuilder.Entity("Lean.Lessons.ProblemSet", b =>
@@ -1990,7 +1991,7 @@ namespace Lean.Migrations
 
                     b.HasIndex("LessonId");
 
-                    b.ToTable("ProblemSets");
+                    b.ToTable("ProblemSet");
                 });
 
             modelBuilder.Entity("Lean.MultiTenancy.Accounting.Invoice", b =>

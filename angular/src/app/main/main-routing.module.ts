@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { LessonComponent } from './lesson/lesson.component';
 
 @NgModule({
     imports: [
@@ -8,9 +9,10 @@ import { DashboardComponent } from './dashboard/dashboard.component';
             {
                 path: '',
                 children: [
-                    { path: 'dashboard', component: DashboardComponent, data: { permission: 'Pages.Tenant.Dashboard' } },
-                    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-                    { path: '**', redirectTo: 'dashboard' }
+                    // { path: 'dashboard', component: DashboardComponent, data: { permission: 'Pages.Tenant.Dashboard' } },
+                    { path: 'lessons', component: LessonComponent, data: {} },
+                    { path: '', redirectTo: 'lessons', pathMatch: 'full' },
+                    { path: '**', redirectTo: 'lessons' }
                 ]
             }
         ])

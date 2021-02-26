@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "start",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "label": "npm: start",
+      "detail": "gulp buildDev && ng serve --host 0.0.0.0 --port 4200",
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "ts",
+        "applyTo": "closedDocuments",
+        "fileLocation": [
+          "relative",
+          "${cwd}"
+        ],
+        "pattern": "$tsc",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "(.*?)"
+          },
+          "endsPattern": {
+            "regexp": "Compiled |Failed to compile."
+          }
+        }
+      }
+    },
+    {
+      "type": "shell",
+      "label": "Re-genarate Service Proxies",
+      "command": ".\\refresh.bat",
+      "options": {
+        "cwd": "${workspaceFolder}/nswag"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

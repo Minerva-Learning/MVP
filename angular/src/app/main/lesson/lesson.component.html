@@ -1,0 +1,38 @@
+<div [@routerTransition]>
+    <div class="content d-flex flex-column flex-column-fluid">
+        <sub-header [title]="'Lessons'">
+            <!-- <div role="actions">
+                <button *ngIf="'Pages.Tenants.Create' | permission"
+                    class="btn btn-primary"
+                    (click)="createTenant()"><i class="fa fa-plus"></i>{{"CreateNewTenant" | localize}}
+                </button>
+            </div> -->
+        </sub-header>
+
+        <div [class]="containerClass">
+            <div class="card card-custom gutter-b">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <ng-wizard [config]="config" (stepChanged)="stepChanged($event)">
+                            <ng-wizard-step [title]="'Lesson'">
+                                <span>Step 1 content</span>
+                            </ng-wizard-step>
+
+                            <ng-wizard-step [title]="'Activity'">
+                                <span></span>
+                            </ng-wizard-step>
+
+                            <ng-wizard-step [title]="'Problem Set'">
+                                <span></span>
+                            </ng-wizard-step>
+
+                            <ng-wizard-step [title]="'Tag Score'">
+                                <span></span>
+                            </ng-wizard-step>
+                        </ng-wizard>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,39 @@
+[
+  {
+    "name": null,
+    "description": null,
+    "modules": [
+      {
+        "name": null,
+        "lessons": [
+          {
+            "name": null,
+            "isInitial": false,
+            "lessonText": null,
+            "lessonVideoUrl": null,
+            "activityText": null,
+            "activityVideoUrl": null,
+            "problemSets": [
+              {
+                "problems": [
+                  {
+                    "name": null,
+                    "score": 10,
+                    "taskDescription": null,
+                    "type": "", // choise | free
+                    "problemAnswerOptions": [
+                      {
+                        "isCorrect": false,
+                        "text": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

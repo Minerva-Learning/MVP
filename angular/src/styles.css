@@ -1,3 +1,8 @@
+@import '~ng-wizard/themes/ng_wizard.min.css';
+@import '~ng-wizard/themes/ng_wizard_theme_arrows.min.css';
+@import '~ng-wizard/themes/ng_wizard_theme_circles.min.css';
+@import '~ng-wizard/themes/ng_wizard_theme_dots.min.css';
+
 /* You can add global styles to this file, and also import other style files */
 .margin-left-5 {
     margin-left: 5px !important;

@@ -3,13 +3,13 @@ import { NavigationEnd, Router, RouterModule, Routes } from '@angular/router';
 import { AppUiCustomizationService } from '@shared/common/ui/app-ui-customization.service';
 
 const routes: Routes = [
-    { path: '', redirectTo: '/app/main/dashboard', pathMatch: 'full' },
+    { path: '', redirectTo: '/app/main', pathMatch: 'full' },
     {
         path: 'account',
         loadChildren: () => import('account/account.module').then(m => m.AccountModule), //Lazy load account module
         data: { preload: true }
     },
-    { path: '**', redirectTo: '/app/main/dashboard' }
+    { path: '**', redirectTo: '/app/main' }
 ];
 
 @NgModule({

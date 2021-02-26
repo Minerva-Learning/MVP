@@ -30,6 +30,8 @@ using Lean.Editions.Dto;
 using Lean.Friendships;
 using Lean.Friendships.Cache;
 using Lean.Friendships.Dto;
+using Lean.Lessons;
+using Lean.Lessons.Dto;
 using Lean.Localization.Dto;
 using Lean.MultiTenancy;
 using Lean.MultiTenancy.Dto;
@@ -163,6 +165,8 @@ namespace Lean
             configuration.CreateMap<CreateUserDelegationDto, UserDelegation>();
 
             /* ADD YOUR OWN CUSTOM AUTOMAPPER MAPPINGS HERE */
+            configuration.RecognizePostfixes("Fk");
+            configuration.CreateMap<Lesson, LessonDto>();
         }
     }
 }

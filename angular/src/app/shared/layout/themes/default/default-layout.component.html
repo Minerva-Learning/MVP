@@ -1,7 +1,7 @@
 <div id="kt_header_mobile"
     class="header-mobile align-items-center {{currentTheme.baseSettings.header.mobileFixedHeader ? 'header-mobile-fixed':''}}">
     <a routerLink="/" target="_blank">
-        <img *ngIf="!appSession.tenant || !appSession.tenant.logoId" [src]="defaultLogo" alt="logo" height="28" />
+        <img *ngIf="!appSession.tenant || !appSession.tenant.logoId" [src]="defaultLogo" alt="logo" height="50" />
         <img *ngIf="appSession.tenant && appSession.tenant.logoId"
             [src]="remoteServiceBaseUrl + '/TenantCustomization/GetTenantLogo?skin=' + currentTheme.baseSettings.menu.asideSkin + '&tenantId=' + appSession.tenant.id + '&id=' + appSession.tenant.logoId"
             alt="logo" height="38" />

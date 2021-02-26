@@ -4,14 +4,16 @@ using Lean.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Lean.Migrations
 {
     [DbContext(typeof(LeanDbContext))]
-    partial class LeanDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210225190401_Add missing problem answer option entity")]
+    partial class Addmissingproblemansweroptionentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1814,9 +1816,6 @@ namespace Lean.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsInitial")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime2");
 
@@ -1866,6 +1865,9 @@ namespace Lean.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsInitial")
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastModificationTime")
