@@ -24,6 +24,7 @@ import { FeatureCheckerPipe } from '@shared/common/pipes/feature-checker.pipe';
 import { DatePickerLuxonModifierDirective } from './date-time/date-picker-luxon-modifier.directive';
 import { DateRangePickerLuxonModifierDirective } from './date-time/date-range-picker-luxon-modifier.directive';
 import { UserTimeZoneMoment, MomentToNow, MomentFromNow } from './lean/pipes/moment-util.pipe';
+import { SafePipe } from '@shared/common/pipes/safe.pipe';
 
 @NgModule({
     imports: [
@@ -57,7 +58,8 @@ import { UserTimeZoneMoment, MomentToNow, MomentFromNow } from './lean/pipes/mom
         PermissionAllPipe,
         UserTimeZoneMoment,
         MomentToNow,
-        MomentFromNow
+        MomentFromNow,
+        SafePipe
     ],
     exports: [
         EqualValidator,
@@ -79,7 +81,8 @@ import { UserTimeZoneMoment, MomentToNow, MomentFromNow } from './lean/pipes/mom
         PermissionAllPipe,
         UserTimeZoneMoment,
         MomentToNow,
-        MomentFromNow
+        MomentFromNow,
+        SafePipe
     ]
 })
 export class UtilsModule { }

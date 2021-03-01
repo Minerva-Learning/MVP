@@ -18,6 +18,7 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { NgxBootstrapDatePickerConfigService } from 'assets/ngx-bootstrap/ngx-bootstrap-datepicker-config.service';
 import { LessonComponent } from './lesson/lesson.component';
 import { StepsModule } from 'primeng/steps';
+import { NgxSliderModule } from '@angular-slider/ngx-slider';
 
 NgxBootstrapDatePickerConfigService.registerNgxBootstrapDatePickerLocales();
 
@@ -38,7 +39,8 @@ const ngWizardConfig: NgWizardConfig = { theme: THEME.default };
         BsDropdownModule.forRoot(),
         PopoverModule.forRoot(),
         NgWizardModule.forRoot(ngWizardConfig),
-        StepsModule
+        StepsModule,
+        NgxSliderModule
     ],
     declarations: [
         DashboardComponent,

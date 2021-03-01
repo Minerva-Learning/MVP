@@ -6110,7 +6110,7 @@ export class LessonsServiceProxy {
     /**
      * @return Success
      */
-    getCurrentLesson(): Observable<LessonDto> {
+    getCurrentLesson(): Observable<CurrentLessonDto> {
         let url_ = this.baseUrl + "/api/services/app/Lessons/GetCurrentLesson";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -6129,14 +6129,14 @@ export class LessonsServiceProxy {
                 try {
                     return this.processGetCurrentLesson(<any>response_);
                 } catch (e) {
-                    return <Observable<LessonDto>><any>_observableThrow(e);
+                    return <Observable<CurrentLessonDto>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<LessonDto>><any>_observableThrow(response_);
+                return <Observable<CurrentLessonDto>><any>_observableThrow(response_);
         }));
     }
 
-    protected processGetCurrentLesson(response: HttpResponseBase): Observable<LessonDto> {
+    protected processGetCurrentLesson(response: HttpResponseBase): Observable<CurrentLessonDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -6147,7 +6147,7 @@ export class LessonsServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = LessonDto.fromJS(resultData200);
+            result200 = CurrentLessonDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -6155,7 +6155,166 @@ export class LessonsServiceProxy {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<LessonDto>(<any>null);
+        return _observableOf<CurrentLessonDto>(<any>null);
+    }
+
+    /**
+     * @return Success
+     */
+    moveToNextStep(): Observable<CurrentLessonDto> {
+        let url_ = this.baseUrl + "/api/services/app/Lessons/MoveToNextStep";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMoveToNextStep(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMoveToNextStep(<any>response_);
+                } catch (e) {
+                    return <Observable<CurrentLessonDto>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<CurrentLessonDto>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processMoveToNextStep(response: HttpResponseBase): Observable<CurrentLessonDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CurrentLessonDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<CurrentLessonDto>(<any>null);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    submitProblemAnswer(body: SubmitProblemAnswerInput | undefined): Observable<CurrentLessonDto> {
+        let url_ = this.baseUrl + "/api/services/app/Lessons/SubmitProblemAnswer";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json-patch+json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSubmitProblemAnswer(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSubmitProblemAnswer(<any>response_);
+                } catch (e) {
+                    return <Observable<CurrentLessonDto>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<CurrentLessonDto>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processSubmitProblemAnswer(response: HttpResponseBase): Observable<CurrentLessonDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CurrentLessonDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<CurrentLessonDto>(<any>null);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    uploadCourses(body: Course[] | null | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/Lessons/UploadCourses";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json-patch+json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUploadCourses(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUploadCourses(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processUploadCourses(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
     }
 }
 
@@ -20496,6 +20655,718 @@ export interface ILessonDto {
     lessonVideoUrl: string | undefined;
     activityText: string | undefined;
     activityVideoUrl: string | undefined;
+    id: number;
+}
+
+export enum LessonStep {
+    Score = 0,
+    Lesson = 1,
+    Activity = 2,
+    ProblemSet = 3,
+}
+
+export enum ProblemType {
+    FreeText = 0,
+    Choise = 1,
+}
+
+export class ProblemAnswerOptionDto implements IProblemAnswerOptionDto {
+    text!: string | undefined;
+    id!: number;
+
+    constructor(data?: IProblemAnswerOptionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.text = _data["text"];
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): ProblemAnswerOptionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemAnswerOptionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["text"] = this.text;
+        data["id"] = this.id;
+        return data; 
+    }
+}
+
+export interface IProblemAnswerOptionDto {
+    text: string | undefined;
+    id: number;
+}
+
+export class ProblemDto implements IProblemDto {
+    name!: string | undefined;
+    taskDescription!: string | undefined;
+    type!: ProblemType;
+    problemAnswerOptions!: ProblemAnswerOptionDto[] | undefined;
+    id!: number;
+
+    constructor(data?: IProblemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.taskDescription = _data["taskDescription"];
+            this.type = _data["type"];
+            if (Array.isArray(_data["problemAnswerOptions"])) {
+                this.problemAnswerOptions = [] as any;
+                for (let item of _data["problemAnswerOptions"])
+                    this.problemAnswerOptions!.push(ProblemAnswerOptionDto.fromJS(item));
+            }
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): ProblemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["taskDescription"] = this.taskDescription;
+        data["type"] = this.type;
+        if (Array.isArray(this.problemAnswerOptions)) {
+            data["problemAnswerOptions"] = [];
+            for (let item of this.problemAnswerOptions)
+                data["problemAnswerOptions"].push(item.toJSON());
+        }
+        data["id"] = this.id;
+        return data; 
+    }
+}
+
+export interface IProblemDto {
+    name: string | undefined;
+    taskDescription: string | undefined;
+    type: ProblemType;
+    problemAnswerOptions: ProblemAnswerOptionDto[] | undefined;
+    id: number;
+}
+
+export class CurrentLessonDto implements ICurrentLessonDto {
+    lesson!: LessonDto;
+    step!: LessonStep;
+    problem!: ProblemDto;
+
+    constructor(data?: ICurrentLessonDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.lesson = _data["lesson"] ? LessonDto.fromJS(_data["lesson"]) : <any>undefined;
+            this.step = _data["step"];
+            this.problem = _data["problem"] ? ProblemDto.fromJS(_data["problem"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CurrentLessonDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CurrentLessonDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["lesson"] = this.lesson ? this.lesson.toJSON() : <any>undefined;
+        data["step"] = this.step;
+        data["problem"] = this.problem ? this.problem.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface ICurrentLessonDto {
+    lesson: LessonDto;
+    step: LessonStep;
+    problem: ProblemDto;
+}
+
+export class SubmitProblemAnswerInput implements ISubmitProblemAnswerInput {
+    problemId!: number;
+    freeTextAnswer!: string | undefined;
+    choiseId!: number | undefined;
+
+    constructor(data?: ISubmitProblemAnswerInput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.problemId = _data["problemId"];
+            this.freeTextAnswer = _data["freeTextAnswer"];
+            this.choiseId = _data["choiseId"];
+        }
+    }
+
+    static fromJS(data: any): SubmitProblemAnswerInput {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubmitProblemAnswerInput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["problemId"] = this.problemId;
+        data["freeTextAnswer"] = this.freeTextAnswer;
+        data["choiseId"] = this.choiseId;
+        return data; 
+    }
+}
+
+export interface ISubmitProblemAnswerInput {
+    problemId: number;
+    freeTextAnswer: string | undefined;
+    choiseId: number | undefined;
+}
+
+export class ProblemAnswerOption implements IProblemAnswerOption {
+    isCorrect!: boolean;
+    text!: string | undefined;
+    problemId!: number;
+    problemFk!: Problem;
+    id!: number;
+
+    constructor(data?: IProblemAnswerOption) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.isCorrect = _data["isCorrect"];
+            this.text = _data["text"];
+            this.problemId = _data["problemId"];
+            this.problemFk = _data["problemFk"] ? Problem.fromJS(_data["problemFk"]) : <any>undefined;
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): ProblemAnswerOption {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemAnswerOption();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isCorrect"] = this.isCorrect;
+        data["text"] = this.text;
+        data["problemId"] = this.problemId;
+        data["problemFk"] = this.problemFk ? this.problemFk.toJSON() : <any>undefined;
+        data["id"] = this.id;
+        return data; 
+    }
+}
+
+export interface IProblemAnswerOption {
+    isCorrect: boolean;
+    text: string | undefined;
+    problemId: number;
+    problemFk: Problem;
+    id: number;
+}
+
+export class Problem implements IProblem {
+    name!: string | undefined;
+    taskDescription!: string | undefined;
+    type!: ProblemType;
+    problemSetId!: number;
+    problemSetFk!: ProblemSet;
+    problemAnswerOptions!: ProblemAnswerOption[] | undefined;
+    isDeleted!: boolean;
+    deleterUserId!: number | undefined;
+    deletionTime!: DateTime | undefined;
+    lastModificationTime!: DateTime | undefined;
+    lastModifierUserId!: number | undefined;
+    creationTime!: DateTime;
+    creatorUserId!: number | undefined;
+    id!: number;
+
+    constructor(data?: IProblem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.taskDescription = _data["taskDescription"];
+            this.type = _data["type"];
+            this.problemSetId = _data["problemSetId"];
+            this.problemSetFk = _data["problemSetFk"] ? ProblemSet.fromJS(_data["problemSetFk"]) : <any>undefined;
+            if (Array.isArray(_data["problemAnswerOptions"])) {
+                this.problemAnswerOptions = [] as any;
+                for (let item of _data["problemAnswerOptions"])
+                    this.problemAnswerOptions!.push(ProblemAnswerOption.fromJS(item));
+            }
+            this.isDeleted = _data["isDeleted"];
+            this.deleterUserId = _data["deleterUserId"];
+            this.deletionTime = _data["deletionTime"] ? DateTime.fromISO(_data["deletionTime"].toString()) : <any>undefined;
+            this.lastModificationTime = _data["lastModificationTime"] ? DateTime.fromISO(_data["lastModificationTime"].toString()) : <any>undefined;
+            this.lastModifierUserId = _data["lastModifierUserId"];
+            this.creationTime = _data["creationTime"] ? DateTime.fromISO(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): Problem {
+        data = typeof data === 'object' ? data : {};
+        let result = new Problem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["taskDescription"] = this.taskDescription;
+        data["type"] = this.type;
+        data["problemSetId"] = this.problemSetId;
+        data["problemSetFk"] = this.problemSetFk ? this.problemSetFk.toJSON() : <any>undefined;
+        if (Array.isArray(this.problemAnswerOptions)) {
+            data["problemAnswerOptions"] = [];
+            for (let item of this.problemAnswerOptions)
+                data["problemAnswerOptions"].push(item.toJSON());
+        }
+        data["isDeleted"] = this.isDeleted;
+        data["deleterUserId"] = this.deleterUserId;
+        data["deletionTime"] = this.deletionTime ? this.deletionTime.toString() : <any>undefined;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toString() : <any>undefined;
+        data["lastModifierUserId"] = this.lastModifierUserId;
+        data["creationTime"] = this.creationTime ? this.creationTime.toString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["id"] = this.id;
+        return data; 
+    }
+}
+
+export interface IProblem {
+    name: string | undefined;
+    taskDescription: string | undefined;
+    type: ProblemType;
+    problemSetId: number;
+    problemSetFk: ProblemSet;
+    problemAnswerOptions: ProblemAnswerOption[] | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: DateTime | undefined;
+    lastModificationTime: DateTime | undefined;
+    lastModifierUserId: number | undefined;
+    creationTime: DateTime;
+    creatorUserId: number | undefined;
+    id: number;
+}
+
+export class ProblemSet implements IProblemSet {
+    lessonId!: number;
+    lessonFk!: Lesson;
+    problems!: Problem[] | undefined;
+    isDeleted!: boolean;
+    deleterUserId!: number | undefined;
+    deletionTime!: DateTime | undefined;
+    lastModificationTime!: DateTime | undefined;
+    lastModifierUserId!: number | undefined;
+    creationTime!: DateTime;
+    creatorUserId!: number | undefined;
+    id!: number;
+
+    constructor(data?: IProblemSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.lessonId = _data["lessonId"];
+            this.lessonFk = _data["lessonFk"] ? Lesson.fromJS(_data["lessonFk"]) : <any>undefined;
+            if (Array.isArray(_data["problems"])) {
+                this.problems = [] as any;
+                for (let item of _data["problems"])
+                    this.problems!.push(Problem.fromJS(item));
+            }
+            this.isDeleted = _data["isDeleted"];
+            this.deleterUserId = _data["deleterUserId"];
+            this.deletionTime = _data["deletionTime"] ? DateTime.fromISO(_data["deletionTime"].toString()) : <any>undefined;
+            this.lastModificationTime = _data["lastModificationTime"] ? DateTime.fromISO(_data["lastModificationTime"].toString()) : <any>undefined;
+            this.lastModifierUserId = _data["lastModifierUserId"];
+            this.creationTime = _data["creationTime"] ? DateTime.fromISO(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): ProblemSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["lessonId"] = this.lessonId;
+        data["lessonFk"] = this.lessonFk ? this.lessonFk.toJSON() : <any>undefined;
+        if (Array.isArray(this.problems)) {
+            data["problems"] = [];
+            for (let item of this.problems)
+                data["problems"].push(item.toJSON());
+        }
+        data["isDeleted"] = this.isDeleted;
+        data["deleterUserId"] = this.deleterUserId;
+        data["deletionTime"] = this.deletionTime ? this.deletionTime.toString() : <any>undefined;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toString() : <any>undefined;
+        data["lastModifierUserId"] = this.lastModifierUserId;
+        data["creationTime"] = this.creationTime ? this.creationTime.toString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["id"] = this.id;
+        return data; 
+    }
+}
+
+export interface IProblemSet {
+    lessonId: number;
+    lessonFk: Lesson;
+    problems: Problem[] | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: DateTime | undefined;
+    lastModificationTime: DateTime | undefined;
+    lastModifierUserId: number | undefined;
+    creationTime: DateTime;
+    creatorUserId: number | undefined;
+    id: number;
+}
+
+export class Lesson implements ILesson {
+    name!: string | undefined;
+    isInitial!: boolean;
+    lessonText!: string | undefined;
+    lessonVideoUrl!: string | undefined;
+    activityText!: string | undefined;
+    activityVideoUrl!: string | undefined;
+    moduleId!: number;
+    moduleFk!: Module;
+    problemSets!: ProblemSet[] | undefined;
+    isDeleted!: boolean;
+    deleterUserId!: number | undefined;
+    deletionTime!: DateTime | undefined;
+    lastModificationTime!: DateTime | undefined;
+    lastModifierUserId!: number | undefined;
+    creationTime!: DateTime;
+    creatorUserId!: number | undefined;
+    id!: number;
+
+    constructor(data?: ILesson) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.isInitial = _data["isInitial"];
+            this.lessonText = _data["lessonText"];
+            this.lessonVideoUrl = _data["lessonVideoUrl"];
+            this.activityText = _data["activityText"];
+            this.activityVideoUrl = _data["activityVideoUrl"];
+            this.moduleId = _data["moduleId"];
+            this.moduleFk = _data["moduleFk"] ? Module.fromJS(_data["moduleFk"]) : <any>undefined;
+            if (Array.isArray(_data["problemSets"])) {
+                this.problemSets = [] as any;
+                for (let item of _data["problemSets"])
+                    this.problemSets!.push(ProblemSet.fromJS(item));
+            }
+            this.isDeleted = _data["isDeleted"];
+            this.deleterUserId = _data["deleterUserId"];
+            this.deletionTime = _data["deletionTime"] ? DateTime.fromISO(_data["deletionTime"].toString()) : <any>undefined;
+            this.lastModificationTime = _data["lastModificationTime"] ? DateTime.fromISO(_data["lastModificationTime"].toString()) : <any>undefined;
+            this.lastModifierUserId = _data["lastModifierUserId"];
+            this.creationTime = _data["creationTime"] ? DateTime.fromISO(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): Lesson {
+        data = typeof data === 'object' ? data : {};
+        let result = new Lesson();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["isInitial"] = this.isInitial;
+        data["lessonText"] = this.lessonText;
+        data["lessonVideoUrl"] = this.lessonVideoUrl;
+        data["activityText"] = this.activityText;
+        data["activityVideoUrl"] = this.activityVideoUrl;
+        data["moduleId"] = this.moduleId;
+        data["moduleFk"] = this.moduleFk ? this.moduleFk.toJSON() : <any>undefined;
+        if (Array.isArray(this.problemSets)) {
+            data["problemSets"] = [];
+            for (let item of this.problemSets)
+                data["problemSets"].push(item.toJSON());
+        }
+        data["isDeleted"] = this.isDeleted;
+        data["deleterUserId"] = this.deleterUserId;
+        data["deletionTime"] = this.deletionTime ? this.deletionTime.toString() : <any>undefined;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toString() : <any>undefined;
+        data["lastModifierUserId"] = this.lastModifierUserId;
+        data["creationTime"] = this.creationTime ? this.creationTime.toString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["id"] = this.id;
+        return data; 
+    }
+}
+
+export interface ILesson {
+    name: string | undefined;
+    isInitial: boolean;
+    lessonText: string | undefined;
+    lessonVideoUrl: string | undefined;
+    activityText: string | undefined;
+    activityVideoUrl: string | undefined;
+    moduleId: number;
+    moduleFk: Module;
+    problemSets: ProblemSet[] | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: DateTime | undefined;
+    lastModificationTime: DateTime | undefined;
+    lastModifierUserId: number | undefined;
+    creationTime: DateTime;
+    creatorUserId: number | undefined;
+    id: number;
+}
+
+export class Module implements IModule {
+    name!: string | undefined;
+    courseId!: number;
+    courseFk!: Course;
+    lessons!: Lesson[] | undefined;
+    isDeleted!: boolean;
+    deleterUserId!: number | undefined;
+    deletionTime!: DateTime | undefined;
+    lastModificationTime!: DateTime | undefined;
+    lastModifierUserId!: number | undefined;
+    creationTime!: DateTime;
+    creatorUserId!: number | undefined;
+    id!: number;
+
+    constructor(data?: IModule) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.courseId = _data["courseId"];
+            this.courseFk = _data["courseFk"] ? Course.fromJS(_data["courseFk"]) : <any>undefined;
+            if (Array.isArray(_data["lessons"])) {
+                this.lessons = [] as any;
+                for (let item of _data["lessons"])
+                    this.lessons!.push(Lesson.fromJS(item));
+            }
+            this.isDeleted = _data["isDeleted"];
+            this.deleterUserId = _data["deleterUserId"];
+            this.deletionTime = _data["deletionTime"] ? DateTime.fromISO(_data["deletionTime"].toString()) : <any>undefined;
+            this.lastModificationTime = _data["lastModificationTime"] ? DateTime.fromISO(_data["lastModificationTime"].toString()) : <any>undefined;
+            this.lastModifierUserId = _data["lastModifierUserId"];
+            this.creationTime = _data["creationTime"] ? DateTime.fromISO(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): Module {
+        data = typeof data === 'object' ? data : {};
+        let result = new Module();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["courseId"] = this.courseId;
+        data["courseFk"] = this.courseFk ? this.courseFk.toJSON() : <any>undefined;
+        if (Array.isArray(this.lessons)) {
+            data["lessons"] = [];
+            for (let item of this.lessons)
+                data["lessons"].push(item.toJSON());
+        }
+        data["isDeleted"] = this.isDeleted;
+        data["deleterUserId"] = this.deleterUserId;
+        data["deletionTime"] = this.deletionTime ? this.deletionTime.toString() : <any>undefined;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toString() : <any>undefined;
+        data["lastModifierUserId"] = this.lastModifierUserId;
+        data["creationTime"] = this.creationTime ? this.creationTime.toString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["id"] = this.id;
+        return data; 
+    }
+}
+
+export interface IModule {
+    name: string | undefined;
+    courseId: number;
+    courseFk: Course;
+    lessons: Lesson[] | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: DateTime | undefined;
+    lastModificationTime: DateTime | undefined;
+    lastModifierUserId: number | undefined;
+    creationTime: DateTime;
+    creatorUserId: number | undefined;
+    id: number;
+}
+
+export class Course implements ICourse {
+    name!: string | undefined;
+    description!: string | undefined;
+    modules!: Module[] | undefined;
+    isDeleted!: boolean;
+    deleterUserId!: number | undefined;
+    deletionTime!: DateTime | undefined;
+    lastModificationTime!: DateTime | undefined;
+    lastModifierUserId!: number | undefined;
+    creationTime!: DateTime;
+    creatorUserId!: number | undefined;
+    id!: number;
+
+    constructor(data?: ICourse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.description = _data["description"];
+            if (Array.isArray(_data["modules"])) {
+                this.modules = [] as any;
+                for (let item of _data["modules"])
+                    this.modules!.push(Module.fromJS(item));
+            }
+            this.isDeleted = _data["isDeleted"];
+            this.deleterUserId = _data["deleterUserId"];
+            this.deletionTime = _data["deletionTime"] ? DateTime.fromISO(_data["deletionTime"].toString()) : <any>undefined;
+            this.lastModificationTime = _data["lastModificationTime"] ? DateTime.fromISO(_data["lastModificationTime"].toString()) : <any>undefined;
+            this.lastModifierUserId = _data["lastModifierUserId"];
+            this.creationTime = _data["creationTime"] ? DateTime.fromISO(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): Course {
+        data = typeof data === 'object' ? data : {};
+        let result = new Course();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["description"] = this.description;
+        if (Array.isArray(this.modules)) {
+            data["modules"] = [];
+            for (let item of this.modules)
+                data["modules"].push(item.toJSON());
+        }
+        data["isDeleted"] = this.isDeleted;
+        data["deleterUserId"] = this.deleterUserId;
+        data["deletionTime"] = this.deletionTime ? this.deletionTime.toString() : <any>undefined;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toString() : <any>undefined;
+        data["lastModifierUserId"] = this.lastModifierUserId;
+        data["creationTime"] = this.creationTime ? this.creationTime.toString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["id"] = this.id;
+        return data; 
+    }
+}
+
+export interface ICourse {
+    name: string | undefined;
+    description: string | undefined;
+    modules: Module[] | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: DateTime | undefined;
+    lastModificationTime: DateTime | undefined;
+    lastModifierUserId: number | undefined;
+    creationTime: DateTime;
+    creatorUserId: number | undefined;
     id: number;
 }
 

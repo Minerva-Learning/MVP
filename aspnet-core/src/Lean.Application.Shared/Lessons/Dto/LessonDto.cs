@@ -19,7 +19,5 @@ namespace Lean.Lessons.Dto
         public string ActivityText { get; set; }
 
         public string ActivityVideoUrl { get; set; }
-
-        public LessonStep Step { get; set; }
     }
 }

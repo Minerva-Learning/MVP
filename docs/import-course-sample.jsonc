@@ -20,7 +20,7 @@
                     "name": null,
                     "score": 10,
                     "taskDescription": null,
-                    "type": "", // choise | free
+                    "type": "", // choise | freeText
                     "problemAnswerOptions": [
                       {
                         "isCorrect": false,

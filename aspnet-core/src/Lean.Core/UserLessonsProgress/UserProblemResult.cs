@@ -14,6 +14,8 @@ namespace Lean.UserLessonsProgress
     {
         public string TextAnswer { get; set; }
 
+        public bool IsCorrect { get; set; }
+
         public int ProblemId { get; set; }
         public Problem ProblemFk { get; set; }
 
