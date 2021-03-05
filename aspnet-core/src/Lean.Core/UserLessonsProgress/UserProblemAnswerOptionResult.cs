@@ -15,6 +15,6 @@ namespace Lean.UserLessonsProgress
         public ProblemAnswerOption ProblemAnswerOptionFk { get; set; }
 
         public int UserProblemResultId { get; set; }
-        public UserProblemResult UserProblemResultFk { get; set; }
+        public UserProblemAnswerResult UserProblemResultFk { get; set; }
     }
 }

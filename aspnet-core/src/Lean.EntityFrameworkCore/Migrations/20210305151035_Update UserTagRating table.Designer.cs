@@ -4,14 +4,16 @@ using Lean.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Lean.Migrations
 {
     [DbContext(typeof(LeanDbContext))]
-    partial class LeanDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210305151035_Update UserTagRating table")]
+    partial class UpdateUserTagRatingtable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1964,8 +1966,8 @@ namespace Lean.Migrations
                     b.Property<int>("TagId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("ProblemTagRating")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("ProblemTagRating")
+                        .HasColumnType("int");
 
                     b.HasKey("ProblemId", "TagId");
 
@@ -2366,8 +2368,8 @@ namespace Lean.Migrations
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
 
-                    b.Property<decimal>("Rating")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
 
                     b.HasKey("TagId", "UserId");
 

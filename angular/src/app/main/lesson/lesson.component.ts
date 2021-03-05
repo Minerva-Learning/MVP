@@ -19,6 +19,7 @@ export class LessonComponent extends AppComponentBase implements OnInit {
     config: NgWizardConfig = {
         selected: 0,
         theme: THEME.default,
+        keyNavigation: false,
         toolbarSettings: {
             showNextButton: false,
             showPreviousButton: false

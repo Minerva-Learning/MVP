@@ -6316,6 +6316,58 @@ export class LessonsServiceProxy {
         }
         return _observableOf<void>(<any>null);
     }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    importCourses(body: CourseImportDto[] | null | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/Lessons/ImportCourses";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json-patch+json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processImportCourses(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processImportCourses(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processImportCourses(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
 }
 
 @Injectable()
@@ -20605,9 +20657,9 @@ export interface IUpdateLanguageTextInput {
 export class LessonDto implements ILessonDto {
     name!: string | undefined;
     lessonText!: string | undefined;
-    lessonVideoUrl!: string | undefined;
+    lessonVideoHtml!: string | undefined;
     activityText!: string | undefined;
-    activityVideoUrl!: string | undefined;
+    activityVideoHtml!: string | undefined;
     id!: number;
 
     constructor(data?: ILessonDto) {
@@ -20623,9 +20675,9 @@ export class LessonDto implements ILessonDto {
         if (_data) {
             this.name = _data["name"];
             this.lessonText = _data["lessonText"];
-            this.lessonVideoUrl = _data["lessonVideoUrl"];
+            this.lessonVideoHtml = _data["lessonVideoHtml"];
             this.activityText = _data["activityText"];
-            this.activityVideoUrl = _data["activityVideoUrl"];
+            this.activityVideoHtml = _data["activityVideoHtml"];
             this.id = _data["id"];
         }
     }
@@ -20641,9 +20693,9 @@ export class LessonDto implements ILessonDto {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
         data["lessonText"] = this.lessonText;
-        data["lessonVideoUrl"] = this.lessonVideoUrl;
+        data["lessonVideoHtml"] = this.lessonVideoHtml;
         data["activityText"] = this.activityText;
-        data["activityVideoUrl"] = this.activityVideoUrl;
+        data["activityVideoHtml"] = this.activityVideoHtml;
         data["id"] = this.id;
         return data; 
     }
@@ -20652,9 +20704,9 @@ export class LessonDto implements ILessonDto {
 export interface ILessonDto {
     name: string | undefined;
     lessonText: string | undefined;
-    lessonVideoUrl: string | undefined;
+    lessonVideoHtml: string | undefined;
     activityText: string | undefined;
-    activityVideoUrl: string | undefined;
+    activityVideoHtml: string | undefined;
     id: number;
 }
 
@@ -20770,10 +20822,51 @@ export interface IProblemDto {
     id: number;
 }
 
+export class TagScoreDto implements ITagScoreDto {
+    tagName!: string | undefined;
+    rating!: number;
+
+    constructor(data?: ITagScoreDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.tagName = _data["tagName"];
+            this.rating = _data["rating"];
+        }
+    }
+
+    static fromJS(data: any): TagScoreDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TagScoreDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["tagName"] = this.tagName;
+        data["rating"] = this.rating;
+        return data; 
+    }
+}
+
+export interface ITagScoreDto {
+    tagName: string | undefined;
+    rating: number;
+}
+
 export class CurrentLessonDto implements ICurrentLessonDto {
     lesson!: LessonDto;
     step!: LessonStep;
     problem!: ProblemDto;
+    tagScores!: TagScoreDto[] | undefined;
 
     constructor(data?: ICurrentLessonDto) {
         if (data) {
@@ -20789,6 +20882,11 @@ export class CurrentLessonDto implements ICurrentLessonDto {
             this.lesson = _data["lesson"] ? LessonDto.fromJS(_data["lesson"]) : <any>undefined;
             this.step = _data["step"];
             this.problem = _data["problem"] ? ProblemDto.fromJS(_data["problem"]) : <any>undefined;
+            if (Array.isArray(_data["tagScores"])) {
+                this.tagScores = [] as any;
+                for (let item of _data["tagScores"])
+                    this.tagScores!.push(TagScoreDto.fromJS(item));
+            }
         }
     }
 
@@ -20804,6 +20902,11 @@ export class CurrentLessonDto implements ICurrentLessonDto {
         data["lesson"] = this.lesson ? this.lesson.toJSON() : <any>undefined;
         data["step"] = this.step;
         data["problem"] = this.problem ? this.problem.toJSON() : <any>undefined;
+        if (Array.isArray(this.tagScores)) {
+            data["tagScores"] = [];
+            for (let item of this.tagScores)
+                data["tagScores"].push(item.toJSON());
+        }
         return data; 
     }
 }
@@ -20812,6 +20915,7 @@ export interface ICurrentLessonDto {
     lesson: LessonDto;
     step: LessonStep;
     problem: ProblemDto;
+    tagScores: TagScoreDto[] | undefined;
 }
 
 export class SubmitProblemAnswerInput implements ISubmitProblemAnswerInput {
@@ -20910,13 +21014,130 @@ export interface IProblemAnswerOption {
     id: number;
 }
 
-export class Problem implements IProblem {
+export class Tag implements ITag {
     name!: string | undefined;
+    initialRating!: number;
+    moduleId!: number;
+    moduleFk!: Module;
+    problemTags!: ProblemTag[] | undefined;
+    id!: number;
+
+    constructor(data?: ITag) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.initialRating = _data["initialRating"];
+            this.moduleId = _data["moduleId"];
+            this.moduleFk = _data["moduleFk"] ? Module.fromJS(_data["moduleFk"]) : <any>undefined;
+            if (Array.isArray(_data["problemTags"])) {
+                this.problemTags = [] as any;
+                for (let item of _data["problemTags"])
+                    this.problemTags!.push(ProblemTag.fromJS(item));
+            }
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): Tag {
+        data = typeof data === 'object' ? data : {};
+        let result = new Tag();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["initialRating"] = this.initialRating;
+        data["moduleId"] = this.moduleId;
+        data["moduleFk"] = this.moduleFk ? this.moduleFk.toJSON() : <any>undefined;
+        if (Array.isArray(this.problemTags)) {
+            data["problemTags"] = [];
+            for (let item of this.problemTags)
+                data["problemTags"].push(item.toJSON());
+        }
+        data["id"] = this.id;
+        return data; 
+    }
+}
+
+export interface ITag {
+    name: string | undefined;
+    initialRating: number;
+    moduleId: number;
+    moduleFk: Module;
+    problemTags: ProblemTag[] | undefined;
+    id: number;
+}
+
+export class ProblemTag implements IProblemTag {
+    problemId!: number;
+    problemFk!: Problem;
+    tagId!: number;
+    tagFk!: Tag;
+    problemTagRating!: number;
+
+    constructor(data?: IProblemTag) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.problemId = _data["problemId"];
+            this.problemFk = _data["problemFk"] ? Problem.fromJS(_data["problemFk"]) : <any>undefined;
+            this.tagId = _data["tagId"];
+            this.tagFk = _data["tagFk"] ? Tag.fromJS(_data["tagFk"]) : <any>undefined;
+            this.problemTagRating = _data["problemTagRating"];
+        }
+    }
+
+    static fromJS(data: any): ProblemTag {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemTag();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["problemId"] = this.problemId;
+        data["problemFk"] = this.problemFk ? this.problemFk.toJSON() : <any>undefined;
+        data["tagId"] = this.tagId;
+        data["tagFk"] = this.tagFk ? this.tagFk.toJSON() : <any>undefined;
+        data["problemTagRating"] = this.problemTagRating;
+        return data; 
+    }
+}
+
+export interface IProblemTag {
+    problemId: number;
+    problemFk: Problem;
+    tagId: number;
+    tagFk: Tag;
+    problemTagRating: number;
+}
+
+export class Problem implements IProblem {
+    number!: number;
     taskDescription!: string | undefined;
     type!: ProblemType;
-    problemSetId!: number;
-    problemSetFk!: ProblemSet;
+    lessonId!: number;
+    lessonFk!: Lesson;
     problemAnswerOptions!: ProblemAnswerOption[] | undefined;
+    problemTags!: ProblemTag[] | undefined;
     isDeleted!: boolean;
     deleterUserId!: number | undefined;
     deletionTime!: DateTime | undefined;
@@ -20937,15 +21158,20 @@ export class Problem implements IProblem {
 
     init(_data?: any) {
         if (_data) {
-            this.name = _data["name"];
+            this.number = _data["number"];
             this.taskDescription = _data["taskDescription"];
             this.type = _data["type"];
-            this.problemSetId = _data["problemSetId"];
-            this.problemSetFk = _data["problemSetFk"] ? ProblemSet.fromJS(_data["problemSetFk"]) : <any>undefined;
+            this.lessonId = _data["lessonId"];
+            this.lessonFk = _data["lessonFk"] ? Lesson.fromJS(_data["lessonFk"]) : <any>undefined;
             if (Array.isArray(_data["problemAnswerOptions"])) {
                 this.problemAnswerOptions = [] as any;
                 for (let item of _data["problemAnswerOptions"])
                     this.problemAnswerOptions!.push(ProblemAnswerOption.fromJS(item));
+            }
+            if (Array.isArray(_data["problemTags"])) {
+                this.problemTags = [] as any;
+                for (let item of _data["problemTags"])
+                    this.problemTags!.push(ProblemTag.fromJS(item));
             }
             this.isDeleted = _data["isDeleted"];
             this.deleterUserId = _data["deleterUserId"];
@@ -20967,15 +21193,20 @@ export class Problem implements IProblem {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
+        data["number"] = this.number;
         data["taskDescription"] = this.taskDescription;
         data["type"] = this.type;
-        data["problemSetId"] = this.problemSetId;
-        data["problemSetFk"] = this.problemSetFk ? this.problemSetFk.toJSON() : <any>undefined;
+        data["lessonId"] = this.lessonId;
+        data["lessonFk"] = this.lessonFk ? this.lessonFk.toJSON() : <any>undefined;
         if (Array.isArray(this.problemAnswerOptions)) {
             data["problemAnswerOptions"] = [];
             for (let item of this.problemAnswerOptions)
                 data["problemAnswerOptions"].push(item.toJSON());
+        }
+        if (Array.isArray(this.problemTags)) {
+            data["problemTags"] = [];
+            for (let item of this.problemTags)
+                data["problemTags"].push(item.toJSON());
         }
         data["isDeleted"] = this.isDeleted;
         data["deleterUserId"] = this.deleterUserId;
@@ -20990,96 +21221,13 @@ export class Problem implements IProblem {
 }
 
 export interface IProblem {
-    name: string | undefined;
+    number: number;
     taskDescription: string | undefined;
     type: ProblemType;
-    problemSetId: number;
-    problemSetFk: ProblemSet;
-    problemAnswerOptions: ProblemAnswerOption[] | undefined;
-    isDeleted: boolean;
-    deleterUserId: number | undefined;
-    deletionTime: DateTime | undefined;
-    lastModificationTime: DateTime | undefined;
-    lastModifierUserId: number | undefined;
-    creationTime: DateTime;
-    creatorUserId: number | undefined;
-    id: number;
-}
-
-export class ProblemSet implements IProblemSet {
-    lessonId!: number;
-    lessonFk!: Lesson;
-    problems!: Problem[] | undefined;
-    isDeleted!: boolean;
-    deleterUserId!: number | undefined;
-    deletionTime!: DateTime | undefined;
-    lastModificationTime!: DateTime | undefined;
-    lastModifierUserId!: number | undefined;
-    creationTime!: DateTime;
-    creatorUserId!: number | undefined;
-    id!: number;
-
-    constructor(data?: IProblemSet) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.lessonId = _data["lessonId"];
-            this.lessonFk = _data["lessonFk"] ? Lesson.fromJS(_data["lessonFk"]) : <any>undefined;
-            if (Array.isArray(_data["problems"])) {
-                this.problems = [] as any;
-                for (let item of _data["problems"])
-                    this.problems!.push(Problem.fromJS(item));
-            }
-            this.isDeleted = _data["isDeleted"];
-            this.deleterUserId = _data["deleterUserId"];
-            this.deletionTime = _data["deletionTime"] ? DateTime.fromISO(_data["deletionTime"].toString()) : <any>undefined;
-            this.lastModificationTime = _data["lastModificationTime"] ? DateTime.fromISO(_data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = _data["lastModifierUserId"];
-            this.creationTime = _data["creationTime"] ? DateTime.fromISO(_data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = _data["creatorUserId"];
-            this.id = _data["id"];
-        }
-    }
-
-    static fromJS(data: any): ProblemSet {
-        data = typeof data === 'object' ? data : {};
-        let result = new ProblemSet();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["lessonId"] = this.lessonId;
-        data["lessonFk"] = this.lessonFk ? this.lessonFk.toJSON() : <any>undefined;
-        if (Array.isArray(this.problems)) {
-            data["problems"] = [];
-            for (let item of this.problems)
-                data["problems"].push(item.toJSON());
-        }
-        data["isDeleted"] = this.isDeleted;
-        data["deleterUserId"] = this.deleterUserId;
-        data["deletionTime"] = this.deletionTime ? this.deletionTime.toString() : <any>undefined;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface IProblemSet {
     lessonId: number;
     lessonFk: Lesson;
-    problems: Problem[] | undefined;
+    problemAnswerOptions: ProblemAnswerOption[] | undefined;
+    problemTags: ProblemTag[] | undefined;
     isDeleted: boolean;
     deleterUserId: number | undefined;
     deletionTime: DateTime | undefined;
@@ -21094,12 +21242,12 @@ export class Lesson implements ILesson {
     name!: string | undefined;
     isInitial!: boolean;
     lessonText!: string | undefined;
-    lessonVideoUrl!: string | undefined;
+    lessonVideoHtml!: string | undefined;
     activityText!: string | undefined;
-    activityVideoUrl!: string | undefined;
+    activityVideoHtml!: string | undefined;
     moduleId!: number;
     moduleFk!: Module;
-    problemSets!: ProblemSet[] | undefined;
+    problems!: Problem[] | undefined;
     isDeleted!: boolean;
     deleterUserId!: number | undefined;
     deletionTime!: DateTime | undefined;
@@ -21123,15 +21271,15 @@ export class Lesson implements ILesson {
             this.name = _data["name"];
             this.isInitial = _data["isInitial"];
             this.lessonText = _data["lessonText"];
-            this.lessonVideoUrl = _data["lessonVideoUrl"];
+            this.lessonVideoHtml = _data["lessonVideoHtml"];
             this.activityText = _data["activityText"];
-            this.activityVideoUrl = _data["activityVideoUrl"];
+            this.activityVideoHtml = _data["activityVideoHtml"];
             this.moduleId = _data["moduleId"];
             this.moduleFk = _data["moduleFk"] ? Module.fromJS(_data["moduleFk"]) : <any>undefined;
-            if (Array.isArray(_data["problemSets"])) {
-                this.problemSets = [] as any;
-                for (let item of _data["problemSets"])
-                    this.problemSets!.push(ProblemSet.fromJS(item));
+            if (Array.isArray(_data["problems"])) {
+                this.problems = [] as any;
+                for (let item of _data["problems"])
+                    this.problems!.push(Problem.fromJS(item));
             }
             this.isDeleted = _data["isDeleted"];
             this.deleterUserId = _data["deleterUserId"];
@@ -21156,15 +21304,15 @@ export class Lesson implements ILesson {
         data["name"] = this.name;
         data["isInitial"] = this.isInitial;
         data["lessonText"] = this.lessonText;
-        data["lessonVideoUrl"] = this.lessonVideoUrl;
+        data["lessonVideoHtml"] = this.lessonVideoHtml;
         data["activityText"] = this.activityText;
-        data["activityVideoUrl"] = this.activityVideoUrl;
+        data["activityVideoHtml"] = this.activityVideoHtml;
         data["moduleId"] = this.moduleId;
         data["moduleFk"] = this.moduleFk ? this.moduleFk.toJSON() : <any>undefined;
-        if (Array.isArray(this.problemSets)) {
-            data["problemSets"] = [];
-            for (let item of this.problemSets)
-                data["problemSets"].push(item.toJSON());
+        if (Array.isArray(this.problems)) {
+            data["problems"] = [];
+            for (let item of this.problems)
+                data["problems"].push(item.toJSON());
         }
         data["isDeleted"] = this.isDeleted;
         data["deleterUserId"] = this.deleterUserId;
@@ -21182,12 +21330,12 @@ export interface ILesson {
     name: string | undefined;
     isInitial: boolean;
     lessonText: string | undefined;
-    lessonVideoUrl: string | undefined;
+    lessonVideoHtml: string | undefined;
     activityText: string | undefined;
-    activityVideoUrl: string | undefined;
+    activityVideoHtml: string | undefined;
     moduleId: number;
     moduleFk: Module;
-    problemSets: ProblemSet[] | undefined;
+    problems: Problem[] | undefined;
     isDeleted: boolean;
     deleterUserId: number | undefined;
     deletionTime: DateTime | undefined;
@@ -21203,6 +21351,7 @@ export class Module implements IModule {
     courseId!: number;
     courseFk!: Course;
     lessons!: Lesson[] | undefined;
+    tags!: Tag[] | undefined;
     isDeleted!: boolean;
     deleterUserId!: number | undefined;
     deletionTime!: DateTime | undefined;
@@ -21230,6 +21379,11 @@ export class Module implements IModule {
                 this.lessons = [] as any;
                 for (let item of _data["lessons"])
                     this.lessons!.push(Lesson.fromJS(item));
+            }
+            if (Array.isArray(_data["tags"])) {
+                this.tags = [] as any;
+                for (let item of _data["tags"])
+                    this.tags!.push(Tag.fromJS(item));
             }
             this.isDeleted = _data["isDeleted"];
             this.deleterUserId = _data["deleterUserId"];
@@ -21259,6 +21413,11 @@ export class Module implements IModule {
             for (let item of this.lessons)
                 data["lessons"].push(item.toJSON());
         }
+        if (Array.isArray(this.tags)) {
+            data["tags"] = [];
+            for (let item of this.tags)
+                data["tags"].push(item.toJSON());
+        }
         data["isDeleted"] = this.isDeleted;
         data["deleterUserId"] = this.deleterUserId;
         data["deletionTime"] = this.deletionTime ? this.deletionTime.toString() : <any>undefined;
@@ -21276,6 +21435,7 @@ export interface IModule {
     courseId: number;
     courseFk: Course;
     lessons: Lesson[] | undefined;
+    tags: Tag[] | undefined;
     isDeleted: boolean;
     deleterUserId: number | undefined;
     deletionTime: DateTime | undefined;
@@ -21368,6 +21528,378 @@ export interface ICourse {
     creationTime: DateTime;
     creatorUserId: number | undefined;
     id: number;
+}
+
+export class ProblemAnswerOptionImportDto implements IProblemAnswerOptionImportDto {
+    isCorrect!: boolean;
+    text!: string | undefined;
+
+    constructor(data?: IProblemAnswerOptionImportDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.isCorrect = _data["isCorrect"];
+            this.text = _data["text"];
+        }
+    }
+
+    static fromJS(data: any): ProblemAnswerOptionImportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemAnswerOptionImportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isCorrect"] = this.isCorrect;
+        data["text"] = this.text;
+        return data; 
+    }
+}
+
+export interface IProblemAnswerOptionImportDto {
+    isCorrect: boolean;
+    text: string | undefined;
+}
+
+export class ProbleTagRefDto implements IProbleTagRefDto {
+    tagKey!: string | undefined;
+    rating!: number;
+
+    constructor(data?: IProbleTagRefDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.tagKey = _data["tagKey"];
+            this.rating = _data["rating"];
+        }
+    }
+
+    static fromJS(data: any): ProbleTagRefDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProbleTagRefDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["tagKey"] = this.tagKey;
+        data["rating"] = this.rating;
+        return data; 
+    }
+}
+
+export interface IProbleTagRefDto {
+    tagKey: string | undefined;
+    rating: number;
+}
+
+export class ProblemImportDto implements IProblemImportDto {
+    number!: number;
+    taskDescription!: string | undefined;
+    type!: ProblemType;
+    problemAnswerOptions!: ProblemAnswerOptionImportDto[] | undefined;
+    tagRef!: ProbleTagRefDto[] | undefined;
+
+    constructor(data?: IProblemImportDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.number = _data["number"];
+            this.taskDescription = _data["taskDescription"];
+            this.type = _data["type"];
+            if (Array.isArray(_data["problemAnswerOptions"])) {
+                this.problemAnswerOptions = [] as any;
+                for (let item of _data["problemAnswerOptions"])
+                    this.problemAnswerOptions!.push(ProblemAnswerOptionImportDto.fromJS(item));
+            }
+            if (Array.isArray(_data["tagRef"])) {
+                this.tagRef = [] as any;
+                for (let item of _data["tagRef"])
+                    this.tagRef!.push(ProbleTagRefDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ProblemImportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemImportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["number"] = this.number;
+        data["taskDescription"] = this.taskDescription;
+        data["type"] = this.type;
+        if (Array.isArray(this.problemAnswerOptions)) {
+            data["problemAnswerOptions"] = [];
+            for (let item of this.problemAnswerOptions)
+                data["problemAnswerOptions"].push(item.toJSON());
+        }
+        if (Array.isArray(this.tagRef)) {
+            data["tagRef"] = [];
+            for (let item of this.tagRef)
+                data["tagRef"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IProblemImportDto {
+    number: number;
+    taskDescription: string | undefined;
+    type: ProblemType;
+    problemAnswerOptions: ProblemAnswerOptionImportDto[] | undefined;
+    tagRef: ProbleTagRefDto[] | undefined;
+}
+
+export class LessonImportDto implements ILessonImportDto {
+    name!: string | undefined;
+    isInitial!: boolean;
+    lessonText!: string | undefined;
+    lessonVideoHtml!: string | undefined;
+    activityText!: string | undefined;
+    activityVideoHtml!: string | undefined;
+    problems!: ProblemImportDto[] | undefined;
+
+    constructor(data?: ILessonImportDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.isInitial = _data["isInitial"];
+            this.lessonText = _data["lessonText"];
+            this.lessonVideoHtml = _data["lessonVideoHtml"];
+            this.activityText = _data["activityText"];
+            this.activityVideoHtml = _data["activityVideoHtml"];
+            if (Array.isArray(_data["problems"])) {
+                this.problems = [] as any;
+                for (let item of _data["problems"])
+                    this.problems!.push(ProblemImportDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): LessonImportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LessonImportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["isInitial"] = this.isInitial;
+        data["lessonText"] = this.lessonText;
+        data["lessonVideoHtml"] = this.lessonVideoHtml;
+        data["activityText"] = this.activityText;
+        data["activityVideoHtml"] = this.activityVideoHtml;
+        if (Array.isArray(this.problems)) {
+            data["problems"] = [];
+            for (let item of this.problems)
+                data["problems"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface ILessonImportDto {
+    name: string | undefined;
+    isInitial: boolean;
+    lessonText: string | undefined;
+    lessonVideoHtml: string | undefined;
+    activityText: string | undefined;
+    activityVideoHtml: string | undefined;
+    problems: ProblemImportDto[] | undefined;
+}
+
+export class TagImportDto implements ITagImportDto {
+    key!: string | undefined;
+    name!: string | undefined;
+    initialRating!: number;
+
+    constructor(data?: ITagImportDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.key = _data["key"];
+            this.name = _data["name"];
+            this.initialRating = _data["initialRating"];
+        }
+    }
+
+    static fromJS(data: any): TagImportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TagImportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["key"] = this.key;
+        data["name"] = this.name;
+        data["initialRating"] = this.initialRating;
+        return data; 
+    }
+}
+
+export interface ITagImportDto {
+    key: string | undefined;
+    name: string | undefined;
+    initialRating: number;
+}
+
+export class ModuleImportDto implements IModuleImportDto {
+    key!: string | undefined;
+    lessons!: LessonImportDto[] | undefined;
+    tags!: TagImportDto[] | undefined;
+
+    constructor(data?: IModuleImportDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.key = _data["key"];
+            if (Array.isArray(_data["lessons"])) {
+                this.lessons = [] as any;
+                for (let item of _data["lessons"])
+                    this.lessons!.push(LessonImportDto.fromJS(item));
+            }
+            if (Array.isArray(_data["tags"])) {
+                this.tags = [] as any;
+                for (let item of _data["tags"])
+                    this.tags!.push(TagImportDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ModuleImportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ModuleImportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["key"] = this.key;
+        if (Array.isArray(this.lessons)) {
+            data["lessons"] = [];
+            for (let item of this.lessons)
+                data["lessons"].push(item.toJSON());
+        }
+        if (Array.isArray(this.tags)) {
+            data["tags"] = [];
+            for (let item of this.tags)
+                data["tags"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IModuleImportDto {
+    key: string | undefined;
+    lessons: LessonImportDto[] | undefined;
+    tags: TagImportDto[] | undefined;
+}
+
+export class CourseImportDto implements ICourseImportDto {
+    name!: string | undefined;
+    description!: string | undefined;
+    modules!: ModuleImportDto[] | undefined;
+
+    constructor(data?: ICourseImportDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.description = _data["description"];
+            if (Array.isArray(_data["modules"])) {
+                this.modules = [] as any;
+                for (let item of _data["modules"])
+                    this.modules!.push(ModuleImportDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CourseImportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourseImportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["description"] = this.description;
+        if (Array.isArray(this.modules)) {
+            data["modules"] = [];
+            for (let item of this.modules)
+                data["modules"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface ICourseImportDto {
+    name: string | undefined;
+    description: string | undefined;
+    modules: ModuleImportDto[] | undefined;
 }
 
 export enum UserNotificationState {

@@ -4,14 +4,16 @@ using Lean.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Lean.Migrations
 {
     [DbContext(typeof(LeanDbContext))]
-    partial class LeanDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210304100406_Change problem name to number")]
+    partial class Changeproblemnametonumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1964,8 +1966,8 @@ namespace Lean.Migrations
                     b.Property<int>("TagId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("ProblemTagRating")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("ProblemTagRating")
+                        .HasColumnType("int");
 
                     b.HasKey("ProblemId", "TagId");
 
@@ -2346,7 +2348,7 @@ namespace Lean.Migrations
                     b.Property<string>("TextAnswer")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserLessonAnswerSetId")
+                    b.Property<int?>("UserLessonAnswerSetId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -2356,24 +2358,6 @@ namespace Lean.Migrations
                     b.HasIndex("UserLessonAnswerSetId");
 
                     b.ToTable("UserProblemAnswerResults");
-                });
-
-            modelBuilder.Entity("Lean.UserLessonsProgress.UserTagRating", b =>
-                {
-                    b.Property<int>("TagId")
-                        .HasColumnType("int");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<decimal>("Rating")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("TagId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserTagRatings");
                 });
 
             modelBuilder.Entity("Lean.Editions.SubscribableEdition", b =>
@@ -2817,34 +2801,11 @@ namespace Lean.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Lean.UserLessonsProgress.UserLessonAnswerSet", "UserLessonAnswerSetFk")
+                    b.HasOne("Lean.UserLessonsProgress.UserLessonAnswerSet", null)
                         .WithMany("Answers")
-                        .HasForeignKey("UserLessonAnswerSetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserLessonAnswerSetId");
 
                     b.Navigation("ProblemFk");
-
-                    b.Navigation("UserLessonAnswerSetFk");
-                });
-
-            modelBuilder.Entity("Lean.UserLessonsProgress.UserTagRating", b =>
-                {
-                    b.HasOne("Lean.Lessons.Tag", "TagFk")
-                        .WithMany()
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Lean.Authorization.Users.User", "UserFk")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("TagFk");
-
-                    b.Navigation("UserFk");
                 });
 
             modelBuilder.Entity("Abp.Application.Features.EditionFeatureSetting", b =>

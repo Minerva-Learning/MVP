@@ -14,10 +14,10 @@ namespace Lean.Lessons.Dto
 
         public string LessonText { get; set; }
 
-        public string LessonVideoUrl { get; set; }
+        public string LessonVideoHtml { get; set; }
 
         public string ActivityText { get; set; }
 
-        public string ActivityVideoUrl { get; set; }
+        public string ActivityVideoHtml { get; set; }
     }
 }

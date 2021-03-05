@@ -64,6 +64,8 @@ namespace Lean.Web.Startup
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            services.AddAppOptions(_appConfiguration);
+
             //MVC
             services.AddControllersWithViews(options =>
             {

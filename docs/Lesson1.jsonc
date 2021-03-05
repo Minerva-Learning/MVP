@@ -10,9 +10,9 @@
             "name": "Lesson 1",
             "isInitial": true,
             "lessonText": null,
-            "lessonVideoUrl": "https://youtu.be/aNqG4ChKShI",
+            "lessonVideoUrl": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/aNqG4ChKShI\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>",
             "activityText": null,
-            "activityVideoUrl": "https://youtu.be/D5Np7ae1VSM",
+            "activityVideoUrl": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/D5Np7ae1VSM\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>",
             "problemSets": [
               {
                 "problems": [

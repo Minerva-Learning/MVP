@@ -1,0 +1,129 @@
+[
+  {
+    "name": "Subtraction",
+    "description": "",
+    "modules": [
+      {
+        "key": "1",
+        "tags": [
+          {
+            "key": "1.a",
+            "name": "1.a - Subtraction Basics",
+            "initialRating": 200
+          },
+          {
+            "key": "1.b",
+            "name": "1.b - One-Digit Subtraction",
+            "initialRating": 200
+          },
+          {
+            "key": "1.c",
+            "name": "1.c - Subtraction 10-19",
+            "initialRating": 200
+          },
+          {
+            "key": "1.d",
+            "name": "1.d - Subtraction 1-19 Word Problems",
+            "initialRating": 200
+          }
+        ],
+        "lessons": [
+          {
+            "name": "10 Frames",
+            "isInitial": true,
+            "lessonText": null,
+            "lessonVideoHtml": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/aNqG4ChKShI\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>",
+            "activityText": null,
+            "activityVideoHtml": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/D5Np7ae1VSM\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>",
+            "problems": [
+              {
+                "number": 1,
+                "taskDescription": "7 - 5 =",
+                "type": "freeText",
+                "problemAnswerOptions": [{ "isCorrect": true, "text": "2" }],
+                "tagRef": [{ "tagKey": "1.a", "rating": 250 }]
+              },
+              {
+                "number": 2,
+                "taskDescription": "8 - 3 =",
+                "type": "freeText",
+                "problemAnswerOptions": [{ "isCorrect": true, "text": "5" }],
+                "tagRef": [{ "tagKey": "1.a", "rating": 250 }]
+              },
+              {
+                "number": 3,
+                "taskDescription": "9 - 2 =",
+                "type": "freeText",
+                "problemAnswerOptions": [{ "isCorrect": true, "text": "7" }],
+                "tagRef": [{ "tagKey": "1.a", "rating": 250 }]
+              },
+              {
+                "number": 4,
+                "taskDescription": "Liam has 5 apples but loses 2 of them. How many does he has left?",
+                "type": "freeText",
+                "problemAnswerOptions": [{ "isCorrect": true, "text": "3" }],
+                "tagRef": [{ "tagKey": "1.b", "rating": 250 }]
+              },
+              {
+                "number": 5,
+                "taskDescription": "Olivia was holding 8 paper clips but gave 5 to her friend. How many does she have left?",
+                "type": "freeText",
+                "problemAnswerOptions": [{ "isCorrect": true, "text": "3" }],
+                "tagRef": [{ "tagKey": "1.b", "rating": 250 }]
+              },
+              {
+                "number": 6,
+                "taskDescription": "Noah had 4 action figures and gave 3 to his brother. How many does he have left?",
+                "type": "freeText",
+                "problemAnswerOptions": [{ "isCorrect": true, "text": "1" }],
+                "tagRef": [{ "tagKey": "1.b", "rating": 250 }]
+              },
+              {
+                "number": 7,
+                "taskDescription": "15 - 7 =",
+                "type": "freeText",
+                "problemAnswerOptions": [{ "isCorrect": true, "text": "8" }],
+                "tagRef": [{ "tagKey": "1.c", "rating": 250 }]
+              },
+              {
+                "number": 8,
+                "taskDescription": "18 - 9 =",
+                "type": "freeText",
+                "problemAnswerOptions": [{ "isCorrect": true, "text": "9" }],
+                "tagRef": [{ "tagKey": "1.c", "rating": 250 }]
+              },
+              {
+                "number": 9,
+                "taskDescription": "12 - 6 =",
+                "type": "freeText",
+                "problemAnswerOptions": [{ "isCorrect": true, "text": "6" }],
+                "tagRef": [{ "tagKey": "1.c", "rating": 250 }]
+              },
+              {
+                "number": 10,
+                "taskDescription": "Emma had 17 bouncy balls and gave 9 to her brother. How many does she have left?",
+                "type": "freeText",
+                "problemAnswerOptions": [{ "isCorrect": true, "text": "8" }],
+                "tagRef": [{ "tagKey": "1.d", "rating": 250 }]
+              },
+              {
+                "number": 11,
+                "taskDescription": "Oliver had 14 bottles of water and gave 6 to his teammates. How many does he have left?",
+                "type": "freeText",
+                "problemAnswerOptions": [{ "isCorrect": true, "text": "8" }],
+                "tagRef": [{ "tagKey": "1.d", "rating": 250 }]
+              },
+              {
+                "number": 12,
+                "taskDescription": "Ava had 12 books and gave 8 away. How many does she have left?",
+                "type": "freeText",
+                "problemAnswerOptions": [{ "isCorrect": true, "text": "4" }],
+                "tagRef": [{ "tagKey": "1.d", "rating": 250 }]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

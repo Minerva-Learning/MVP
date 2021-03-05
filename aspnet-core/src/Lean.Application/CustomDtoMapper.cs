@@ -32,6 +32,7 @@ using Lean.Friendships.Cache;
 using Lean.Friendships.Dto;
 using Lean.Lessons;
 using Lean.Lessons.Dto;
+using Lean.Lessons.Dto.Import;
 using Lean.Localization.Dto;
 using Lean.MultiTenancy;
 using Lean.MultiTenancy.Dto;
@@ -42,6 +43,8 @@ using Lean.Notifications.Dto;
 using Lean.Organizations.Dto;
 using Lean.Sessions.Dto;
 using Lean.WebHooks.Dto;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Lean
 {
@@ -168,8 +171,11 @@ namespace Lean
             configuration.RecognizePostfixes("Fk");
             configuration.CreateMap<Lesson, LessonDto>();
             configuration.CreateMap<Problem, ProblemDto>()
-                .ForMember(x => x.ProblemAnswerOptions, o => o.Condition(x => x.Type == ProblemType.Choise));
+                .ForMember(x => x.ProblemAnswerOptions, o => o.MapFrom(x => x.ProblemAnswerOptions.Where(pa => x.Type == ProblemType.Choise).AsEnumerable()));
             configuration.CreateMap<ProblemAnswerOption, ProblemAnswerOptionDto>();
+            configuration.CreateMap<ProblemImportDto, Problem>()
+                .ForMember(x => x.ProblemAnswerOptions, o => o.MapFrom(x => x.ProblemAnswerOptions));
+            configuration.CreateMap<ProblemAnswerOptionImportDto, ProblemAnswerOption>();
         }
     }
 }

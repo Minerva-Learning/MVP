@@ -3,10 +3,15 @@ using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.UI;
 using Lean.Lessons.Dto;
+using Lean.Lessons.Dto.Import;
+using Lean.Options;
 using Lean.UserLessonsProgress;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Org.BouncyCastle.Math.EC.Rfc7748;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +26,11 @@ namespace Lean.Lessons
         private readonly IRepository<Lesson> _lessonRepository;
         private readonly IRepository<Problem> _problemRepository;
         private readonly IRepository<UserLearningProgress> _userLearningProgressRepository;
-        private readonly IRepository<UserProblemResult> _userProblemResultRepository;
+        private readonly IRepository<UserLessonAnswerSet> _userLessonAnswerSetRepository;
+        private readonly IRepository<UserProblemAnswerResult> _userProblemResultRepository;
+        private readonly IRepository<UserTagRating, string> _userTagRatingRepository;
+        private readonly IRepository<Tag> _tagRepository;
+        private readonly RatingVariables _ratingVariables;
 
         public LessonsAppService(
             IRepository<Course> courseRepository,
@@ -29,47 +38,37 @@ namespace Lean.Lessons
             IRepository<Lesson> lessonRepository,
             IRepository<Problem> problemRepository,
             IRepository<UserLearningProgress> userLearningProgressRepository,
-            IRepository<UserProblemResult> userProblemResultRepository)
+            IRepository<UserLessonAnswerSet> userLessonAnswerSetRepository,
+            IRepository<UserProblemAnswerResult> userProblemResultRepository,
+            IRepository<UserTagRating, string> userTagRatingRepository,
+            IRepository<Tag> tagRepository,
+            IOptions<RatingVariables> ratingVariables)
         {
             _courseRepository = courseRepository;
             _moduleRepository = moduleRepository;
             _lessonRepository = lessonRepository;
             _problemRepository = problemRepository;
             _userLearningProgressRepository = userLearningProgressRepository;
+            _userLessonAnswerSetRepository = userLessonAnswerSetRepository;
             _userProblemResultRepository = userProblemResultRepository;
+            _userTagRatingRepository = userTagRatingRepository;
+            _tagRepository = tagRepository;
+            _ratingVariables = ratingVariables.Value;
         }
 
         public async Task<CurrentLessonDto> GetCurrentLesson()
         {
             var learningProgress = await GetCurrentUserLearningProgress();
-            var currentLesson = new CurrentLessonDto
-            {
-                Lesson = await GetLesson(learningProgress.CurrentLessonId),
-                Problem = await GetProblem(learningProgress),
-                Step = learningProgress.Step
-            };
-
+            var currentLesson = await GetCurrentLessonDto(learningProgress);
             return currentLesson;
         }
 
         public async Task<CurrentLessonDto> MoveToNextStep()
         {
             var learningProgress = await GetCurrentUserLearningProgress();
-            var nextStep = GetNextStep(learningProgress.Step);
-            learningProgress.Step = nextStep;
+            await TransferProgressToNextStep(learningProgress);
 
-            if (nextStep == LessonStep.Lesson)
-            {
-                await MoveToNewLesson(learningProgress);
-                // Moving to the next lesson logic.
-            }
-
-            var currentLesson = new CurrentLessonDto
-            {
-                Lesson = await GetLesson(learningProgress.CurrentLessonId),
-                Problem = await GetProblem(learningProgress),
-                Step = nextStep
-            };
+            var currentLesson = await GetCurrentLessonDto(learningProgress);
             return currentLesson;
         }
 
@@ -83,52 +82,133 @@ namespace Lean.Lessons
 
             var problem = await _problemRepository.GetAll()
                 .Include(x => x.ProblemAnswerOptions)
+                .Include(x => x.ProblemTags).ThenInclude(x => x.TagFk)
                 .Where(x => x.Id == input.ProblemId)
                 .FirstOrDefaultAsync();
 
+            var answerSet = await GetCurrentUserLessonAnswerSet(learningProgress.CurrentLessonId);
             if (problem.Type == ProblemType.FreeText)
             {
                 var textAnswer = input.FreeTextAnswer.Trim();
                 var correctAnswer = problem.ProblemAnswerOptions.First(x => x.IsCorrect);
-                var correct = correctAnswer.Text == textAnswer;
-                var problemResult = new UserProblemResult
+                var isAnswerCorrect = correctAnswer.Text == textAnswer;
+                var problemResult = new UserProblemAnswerResult
                 {
-                    IsCorrect = correct,
+                    IsCorrect = isAnswerCorrect,
                     TextAnswer = textAnswer,
-                    UserId = AbpSession.UserId.Value,
                     ProblemId = problem.Id,
+                    UserLessonAnswerSetFk = answerSet
+                    
                 };
                 await _userProblemResultRepository.InsertAsync(problemResult);
+                await UpdateUserTagRatings(isAnswerCorrect, problem.ProblemTags);
                 var nextLessonId = await GetNextLessonProblemId(learningProgress);
                 learningProgress.CurrentProblemId = nextLessonId;
+                if (nextLessonId is null)
+                {
+                    await TransferProgressToNextStep(learningProgress);
+                }
             }
             else
             {
                 throw new NotImplementedException();
             }
 
-            var currentLesson = new CurrentLessonDto
-            {
-                Lesson = await GetLesson(learningProgress.CurrentLessonId),
-                Problem = await GetProblem(learningProgress),
-                Step = learningProgress.Step
-            };
-
+            var currentLesson = await GetCurrentLessonDto(learningProgress);
             return currentLesson;
         }
 
-        [UnitOfWork]
-        public async Task UploadCourses(List<Course> courses)
+        private async Task<UserLessonAnswerSet> GetCurrentUserLessonAnswerSet(int lessonId)
         {
-            foreach (var course in courses)
+            var mostRecentAnswerSet = await _userLessonAnswerSetRepository.GetAll()
+                .Include(x => x.Answers)
+                .Where(x => x.UserId == AbpSession.UserId.Value && x.LessonId == lessonId)
+                .OrderByDescending(x => x.CreationTime)
+                .FirstOrDefaultAsync();
+
+            if (mostRecentAnswerSet is null)
             {
-                await _courseRepository.InsertAsync(course);
+                mostRecentAnswerSet = CreateUserLessonAnswerSet(lessonId);
+                await _userLessonAnswerSetRepository.InsertAsync(mostRecentAnswerSet);
             }
+            else
+            {
+                var counts = await _userLessonAnswerSetRepository.GetAll()
+                    .Where(x => x.Id == mostRecentAnswerSet.Id)
+                    .Select(x => new
+                    {
+                        ProblemsCount = x.LessonFk.Problems.Count(),
+                        AnswersCount = x.Answers.Count()
+                    })
+                    .FirstOrDefaultAsync();
+                if (counts.AnswersCount == counts.ProblemsCount)
+                {
+                    mostRecentAnswerSet = CreateUserLessonAnswerSet(lessonId);
+                    await _userLessonAnswerSetRepository.InsertAsync(mostRecentAnswerSet);
+                }
+            }
+
+            return mostRecentAnswerSet;
+        }
+
+        private UserLessonAnswerSet CreateUserLessonAnswerSet(int lessonId)
+        {
+            return new UserLessonAnswerSet
+            {
+                UserId = AbpSession.UserId.Value,
+                LessonId = lessonId,
+                Answers = new List<UserProblemAnswerResult>()
+            };
+        }
+
+        private async Task UpdateUserTagRatings(bool isAnswerCorrect, IEnumerable<ProblemTag> problemTags)
+        {
+            foreach (var problemTag in problemTags)
+            {
+                var tagRating = await GetOrCreateUserTagRating(problemTag);
+                var newRatingScore = CalculateNewRating(
+                    tagRating.Rating,
+                    problemTag.ProblemTagRating,
+                    _ratingVariables.T,
+                    _ratingVariables.K,
+                    _ratingVariables.C,
+                    isAnswerCorrect);
+                tagRating.Rating = newRatingScore;
+            }
+        }
+
+        private static decimal CalculateNewRating(decimal old, decimal tagValue, decimal t, decimal k, decimal c, bool successful)
+        {
+            decimal Pow(decimal x, decimal y) => (decimal)Math.Pow((double)x, (double)y);
+
+            var n = successful ? 1m : 0m;
+            var newRating = old + c * (n - 1m / (1m + (1m / t - 1m) * Pow(10m, (tagValue - old) / k)));
+            return newRating;
+        }
+
+        private async Task<UserTagRating> GetOrCreateUserTagRating(ProblemTag problemTag)
+        {
+            var tagRating = await _userTagRatingRepository.GetAll()
+                .Where(x => x.UserId == AbpSession.UserId.Value && x.TagId == problemTag.TagId)
+                .FirstOrDefaultAsync();
+            if (tagRating is null)
+            {
+                tagRating = new UserTagRating
+                {
+                    TagId = problemTag.TagId,
+                    UserId = AbpSession.UserId.Value,
+                    Rating = problemTag.TagFk.InitialRating
+                };
+                await _userTagRatingRepository.InsertAsync(tagRating);
+            }
+
+            return tagRating;
         }
 
         private async Task<UserLearningProgress> GetCurrentUserLearningProgress()
         {
             var learningProgress = await _userLearningProgressRepository.GetAll()
+                .Include(x => x.CurrentLessonFk)
                 .FirstOrDefaultAsync(x => x.UserId == AbpSession.UserId.Value);
             if (learningProgress is null)
             {
@@ -141,9 +221,35 @@ namespace Lean.Lessons
                 };
                 await _userLearningProgressRepository.InsertAsync(learningProgress);
                 await CurrentUnitOfWork.SaveChangesAsync();
+                learningProgress = await _userLearningProgressRepository.GetAll()
+                    .Include(x => x.CurrentLessonFk)
+                    .FirstOrDefaultAsync(x => x.UserId == AbpSession.UserId.Value);
             }
 
             return learningProgress;
+        }
+
+        private async Task TransferProgressToNextStep(UserLearningProgress learningProgress)
+        {
+            var nextStep = GetNextStep(learningProgress.Step);
+            learningProgress.Step = nextStep;
+
+            if (nextStep == LessonStep.Lesson)
+            {
+                await MoveToNewLesson(learningProgress);
+                // Moving to the next lesson logic.
+            }
+        }
+
+        private async Task<CurrentLessonDto> GetCurrentLessonDto(UserLearningProgress learningProgress)
+        {
+            return new CurrentLessonDto
+            {
+                Lesson = await GetLesson(learningProgress.CurrentLessonId),
+                Problem = await GetProblem(learningProgress),
+                Step = learningProgress.Step,
+                TagScores = await GetTagScores(learningProgress)
+            };
         }
 
         private async Task MoveToNewLesson(UserLearningProgress learningProgress)
@@ -157,6 +263,36 @@ namespace Lean.Lessons
             var mappedQuery = ObjectMapper.ProjectTo<LessonDto>(query);
             var lesson = await mappedQuery.FirstOrDefaultAsync();
             return lesson;
+        }
+
+        private async Task<List<TagScoreDto>> GetTagScores(UserLearningProgress learningProgress)
+        {
+            if (learningProgress.Step != LessonStep.Score)
+            {
+                return null;
+            }
+
+            var moduleId = learningProgress.CurrentLessonFk.ModuleId;
+            var moduleTags = await _tagRepository.GetAll().AsNoTracking()
+                .Where(x => x.ModuleId == moduleId)
+                .ToListAsync();
+
+            var userTagRatings = await _userTagRatingRepository.GetAll().AsNoTracking()
+                .Where(x => x.UserId == AbpSession.UserId.Value && x.TagFk.ModuleId == moduleId)
+                .ToListAsync();
+            var userTagRatingsTagMap = userTagRatings.ToDictionary(x => x.TagId, x => x.Rating);
+
+            var tagScores = moduleTags
+                .Select(x =>
+                {
+                    return new TagScoreDto
+                    {
+                        Rating = userTagRatingsTagMap.GetValueOrDefault(x.Id, x.InitialRating),
+                        TagName = x.Name
+                    };
+                })
+                .ToList();
+            return tagScores;
         }
 
         private async Task<ProblemDto> GetProblem(UserLearningProgress learningProgress)
@@ -180,7 +316,7 @@ namespace Lean.Lessons
         private async Task<int?> GetNextLessonProblemId(UserLearningProgress learningProgress)
         {
             var baseQuery = _problemRepository.GetAll()
-                .Where(x => x.ProblemSetFk.LessonId == learningProgress.CurrentLessonId)
+                .Where(x => x.LessonId == learningProgress.CurrentLessonId)
                 .OrderBy(x => x.Id);
             if (learningProgress.CurrentProblemId.HasValue)
             {
@@ -203,5 +339,86 @@ namespace Lean.Lessons
             LessonStep.Score => LessonStep.Lesson,
             _ => throw new NotImplementedException()
         };
+
+        #region Import
+        [UnitOfWork]
+        public async Task UploadCourses(List<Course> courses)
+        {
+            foreach (var course in courses)
+            {
+                await _courseRepository.InsertAsync(course);
+            }
+        }
+
+        [UnitOfWork]
+        public async Task ImportCourses(List<CourseImportDto> courseDtos)
+        {
+            foreach (var courseDto in courseDtos)
+            {
+                var course = new Course
+                {
+                    Name = courseDto.Name,
+                    Description = courseDto.Description
+                };
+
+                //var tags = courseDto.Modules.ToDictionary(x => x.Key, x => new m)
+            }
+
+            var courses = courseDtos.Select(courseDto =>
+            {
+                var course = new Course
+                {
+                    Name = courseDto.Name,
+                    Description = courseDto.Description
+                };
+
+                var modules = courseDto.Modules.Select(moduleDto =>
+                {
+                    var module = new Module { Name = moduleDto.Key };
+                    var tagDict = moduleDto.Tags.ToDictionary(x => x.Key, x => new Tag
+                    {
+                        InitialRating = x.InitialRating,
+                        Name = x.Name
+                    });
+                    module.Tags = tagDict.Select(x => x.Value).ToList();
+                    var lessons = moduleDto.Lessons.Select(lessonDto =>
+                    {
+                        var lesson = new Lesson
+                        {
+                            ActivityText = lessonDto.ActivityText,
+                            ActivityVideoHtml = lessonDto.ActivityVideoHtml,
+                            LessonText = lessonDto.LessonText,
+                            LessonVideoHtml = lessonDto.LessonVideoHtml,
+                            IsInitial = lessonDto.IsInitial,
+                            Name = lessonDto.Name
+                        };
+                        lesson.Problems = lessonDto.Problems.Select(problemDto =>
+                        {
+                            var problem = ObjectMapper.Map<Problem>(problemDto);
+                            problem.ProblemAnswerOptions = problemDto.ProblemAnswerOptions
+                                .Select(optionDto => ObjectMapper.Map<ProblemAnswerOption>(optionDto))
+                                .ToList();
+                            problem.ProblemTags = problemDto.TagRef.Select(tag => new ProblemTag
+                            {
+                                TagFk = tagDict[tag.TagKey],
+                                ProblemTagRating = tag.Rating
+                            }).ToList();
+                            return problem;
+                        }).ToList();
+                        return lesson;
+                    }).ToList();
+                    module.Lessons = lessons;
+                    return module;
+                }).ToList();
+                course.Modules = modules;
+                return course;
+            }).ToList();
+
+            foreach (var course in courses)
+            {
+                await _courseRepository.InsertAsync(course);
+            }
+        }
+        #endregion
     }
 }

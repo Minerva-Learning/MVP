@@ -23,8 +23,20 @@
                                     </button>
                                 </div>
                                 <div>
-                                    <div class="row">
-                                        <div class="col d-flex flex-column align-items-center m-5">
+                                    <div class="tag-score-container d-flex flex-wrap" *ngIf="currentLesson?.tagScores">
+                                        <div class="card score-card" *ngFor="let tagScore of currentLesson.tagScores">
+                                            <div class="card-body">
+                                                <div class="d-flex flex-column align-items-center">
+                                                    <div class="tag-score w-100">
+                                                        <ngx-slider [(value)]="tagScore.rating" [options]="sliderOptions"></ngx-slider>
+                                                    </div>
+                                                    <div>
+                                                        {{tagScore.tagName}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- <div class="col d-flex flex-column align-items-center m-5">
                                             <div class="tag-score w-100">
                                                 <ngx-slider [(value)]="lessonSliderValue" [options]="sliderOptions"></ngx-slider>
                                             </div>
@@ -47,9 +59,9 @@
                                             <div>
                                                 SUB 2.1 - Subtraction 10-19
                                             </div>
-                                        </div>
+                                        </div> -->
                                     </div>
-                                    <div class="row">
+                                    <!-- <div class="row">
                                         <div class="col d-flex flex-column align-items-center m-5">
                                             <div class="tag-score w-100">
                                                 <ngx-slider [(value)]="lessonFixedValue" [options]="sliderOptions"></ngx-slider>
@@ -74,7 +86,7 @@
                                                 SUB 3.2 -Subtraction word problems tens units
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <div class="row">
                                     </div>
                                 </div>
@@ -82,10 +94,10 @@
 
                             <ng-wizard-step [title]="'Lesson'">
                                 <div *ngIf="currentLesson?.lesson">
-                                    <div class="" *ngIf="currentLesson.lesson.lessonVideoUrl">
-                                        <iframe width="560" height="315" [src]="currentLesson.lesson.lessonVideoUrl | safe"
+                                    <div class="" *ngIf="currentLesson.lesson.lessonVideoHtml" [innerHTML]="currentLesson.lesson.lessonVideoHtml | safe">
+                                        <!-- <iframe width="560" height="315" [src]="currentLesson.lesson.lessonVideoUrl | safe"
                                                 frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
-                                        </iframe>
+                                        </iframe> -->
                                     </div>
                                     <div *ngIf="currentLesson.lesson.lessonText">
                                         <p>{{ currentLesson.lesson.lessonText | safe }}</p>
@@ -105,10 +117,10 @@
 
                             <ng-wizard-step [title]="'Activity'">
                                 <div *ngIf="currentLesson?.lesson">
-                                    <div class="" *ngIf="currentLesson.lesson.activityVideoUrl">
-                                        <iframe width="560" height="315" [src]="currentLesson.lesson.activityVideoUrl | safe"
+                                    <div class="" *ngIf="currentLesson.lesson.activityVideoHtml" [innerHTML]="currentLesson.lesson.activityVideoHtml | safe">
+                                        <!-- <iframe width="560" height="315" [src]="currentLesson.lesson.activityVideoHtml | safe"
                                                 frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
-                                        </iframe>
+                                        </iframe> -->
                                     </div>
                                     <div *ngIf="currentLesson.lesson.activityText">
                                         <p>{{ currentLesson.lesson.activityText | safe }}</p>

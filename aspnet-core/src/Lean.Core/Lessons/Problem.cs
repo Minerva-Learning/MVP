@@ -9,16 +9,17 @@ namespace Lean.Lessons
 {
     public class Problem : FullAuditedEntity
     {
-        public string Name { get; set; }
+        public int Number { get; set; }
 
         public string TaskDescription { get; set; }
 
         public ProblemType Type { get; set; }
 
-        public int ProblemSetId { get; set; }
-
-        public virtual ProblemSet ProblemSetFk { get; set; }
+        public int LessonId { get; set; }
+        public virtual Lesson LessonFk { get; set; }
 
         public virtual List<ProblemAnswerOption> ProblemAnswerOptions { get; set; }
+
+        public virtual List<ProblemTag> ProblemTags { get; set; }
     }
 }

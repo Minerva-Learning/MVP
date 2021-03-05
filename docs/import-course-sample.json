@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Course_Name",
+    "description": "Course_Description",
+    "modules": [
+      {
+        "key": "Module_Name_Or_Key",
+        "tags": [
+          {
+            "key": "Tag_Key",
+            "name": "Tag_Name",
+            "initialRating": 200
+          }
+        ],
+        "lessons": [
+          {
+            "name": "Lesson_Name",
+            "isInitial": true,
+            "lessonText": "",
+            "lessonVideoHtml": "",
+            "activityText": "",
+            "activityVideoHtml": "",
+            "problems": [
+              {
+                "number": 1,
+                "taskDescription": "Problem_Description",
+                "type": 0,
+                "options": [{ "isCorrect": true, "text": "CorrectAnswer" }],
+                "tagRef": [{ "tagKey": "Related__Tag_Key", "rating": 250 }]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

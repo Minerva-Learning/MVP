@@ -14,5 +14,7 @@ namespace Lean.Lessons.Dto
         public LessonStep Step { get; set; }
 
         public ProblemDto Problem { get; set; }
+
+        public List<TagScoreDto> TagScores {get;set;}
     }
 }
