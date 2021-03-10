@@ -4,14 +4,19 @@ using Abp.Domain.Uow;
 using Abp.UI;
 using Lean.Lessons.Dto;
 using Lean.Lessons.Dto.Import;
+using Lean.Lessons.Importing;
 using Lean.Options;
 using Lean.UserLessonsProgress;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Org.BouncyCastle.Math.EC.Rfc7748;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,6 +35,7 @@ namespace Lean.Lessons
         private readonly IRepository<UserProblemAnswerResult> _userProblemResultRepository;
         private readonly IRepository<UserTagRating, string> _userTagRatingRepository;
         private readonly IRepository<Tag> _tagRepository;
+        private readonly ICourseExcelImporter _courseExcelImporter;
         private readonly RatingVariables _ratingVariables;
 
         public LessonsAppService(
@@ -42,7 +48,8 @@ namespace Lean.Lessons
             IRepository<UserProblemAnswerResult> userProblemResultRepository,
             IRepository<UserTagRating, string> userTagRatingRepository,
             IRepository<Tag> tagRepository,
-            IOptions<RatingVariables> ratingVariables)
+            IOptions<RatingVariables> ratingVariables,
+            ICourseExcelImporter courseExcelImporter)
         {
             _courseRepository = courseRepository;
             _moduleRepository = moduleRepository;
@@ -53,6 +60,7 @@ namespace Lean.Lessons
             _userProblemResultRepository = userProblemResultRepository;
             _userTagRatingRepository = userTagRatingRepository;
             _tagRepository = tagRepository;
+            _courseExcelImporter = courseExcelImporter;
             _ratingVariables = ratingVariables.Value;
         }
 
@@ -342,12 +350,12 @@ namespace Lean.Lessons
 
         #region Import
         [UnitOfWork]
-        public async Task UploadCourses(List<Course> courses)
+        public async Task ImportCouserFromExcel([FromForm] IFormFile file)
         {
-            foreach (var course in courses)
-            {
-                await _courseRepository.InsertAsync(course);
-            }
+            using var stream = file.OpenReadStream();
+            var course = _courseExcelImporter.Import(stream, Path.GetFileNameWithoutExtension(file.FileName));
+            await _courseRepository.InsertAsync(course);
+            //return await ImportRecipesExcel(file, false);
         }
 
         [UnitOfWork]

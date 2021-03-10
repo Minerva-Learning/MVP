@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 
@@ -56,6 +57,24 @@ namespace Lean.DataExporting.Excel.NPOI
             }
 
             return entities;
+        }
+
+        protected bool IsRowEmpty(ISheet worksheet, int row)
+        {
+            var cell = worksheet.GetRow(row)?.Cells.FirstOrDefault();
+            return cell == null || string.IsNullOrWhiteSpace(GetStringValue(cell));
+        }
+
+        protected string GetStringValue(ICell cell)
+        {
+            if (cell is null)
+            {
+                return null;
+            }
+
+            return cell.CellType == CellType.String
+                ? cell.StringCellValue
+                : cell.ToString();
         }
     }
 }

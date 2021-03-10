@@ -114,11 +114,5 @@ namespace Lean.Authorization.Users.Importing
         {
             return _localizationSource.GetString("{0}IsInvalid", _localizationSource.GetString(parameter)) + "; ";
         }
-
-        private bool IsRowEmpty(ISheet worksheet, int row)
-        {
-            var cell = worksheet.GetRow(row)?.Cells.FirstOrDefault();
-            return cell == null || string.IsNullOrWhiteSpace(cell.StringCellValue);
-        }
     }
 }

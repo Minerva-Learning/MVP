@@ -4,14 +4,16 @@ using Lean.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Lean.Migrations
 {
     [DbContext(typeof(LeanDbContext))]
-    partial class LeanDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210310121800_Add FlowRules")]
+    partial class AddFlowRules
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1796,7 +1798,7 @@ namespace Lean.Migrations
                     b.Property<int>("Condition")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CorrectAnswersCount")
+                    b.Property<int>("CorrectAnswersCount")
                         .HasColumnType("int");
 
                     b.Property<int>("LessonId")
@@ -1945,6 +1947,7 @@ namespace Lean.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -2020,7 +2023,7 @@ namespace Lean.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProblemId", "IsCorrect");
+                    b.HasIndex("ProblemId");
 
                     b.ToTable("ProblemAnswerOptions");
                 });
@@ -2721,13 +2724,11 @@ namespace Lean.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Lean.Lessons.Lesson", "NextLessonFk")
+                    b.HasOne("Lean.Lessons.Lesson", null)
                         .WithMany()
                         .HasForeignKey("NextLessonId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.Navigation("NextLessonFk");
                 });
 
             modelBuilder.Entity("Lean.Lessons.FlowRuleProblem", b =>
@@ -2738,13 +2739,11 @@ namespace Lean.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Lean.Lessons.Problem", "ProblemFk")
+                    b.HasOne("Lean.Lessons.Problem", null)
                         .WithMany()
                         .HasForeignKey("ProblemId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.Navigation("ProblemFk");
                 });
 
             modelBuilder.Entity("Lean.Lessons.Lesson", b =>

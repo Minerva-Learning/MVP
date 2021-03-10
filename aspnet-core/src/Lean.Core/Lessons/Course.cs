@@ -13,6 +13,6 @@ namespace Lean.Lessons
 
         public string Description { get; set; }
 
-        public virtual List<Module> Modules { get; set; }
+        public virtual List<Module> Modules { get; set; } = new List<Module>();
     }
 }

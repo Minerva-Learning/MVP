@@ -15,8 +15,8 @@ namespace Lean.Lessons
 
         public virtual Course CourseFk { get; set; }
 
-        public virtual List<Lesson> Lessons { get; set; }
+        public virtual List<Lesson> Lessons { get; set; } = new List<Lesson>();
 
-        public virtual List<Tag> Tags { get; set; }
+        public virtual List<Tag> Tags { get; set; } = new List<Tag>();
     }
 }

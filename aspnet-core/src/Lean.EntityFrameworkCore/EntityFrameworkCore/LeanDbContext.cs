@@ -13,6 +13,8 @@ using Lean.MultiTenancy.Payments;
 using Lean.Storage;
 using Lean.Lessons;
 using Lean.UserLessonsProgress;
+using Org.BouncyCastle.Math.EC.Rfc7748;
+using System.Collections.Generic;
 
 namespace Lean.EntityFrameworkCore
 {
@@ -49,6 +51,12 @@ namespace Lean.EntityFrameworkCore
         public virtual DbSet<Tag> Tags { get; set; }
 
         public virtual DbSet<ProblemTag> ProblemTags { get; set; }
+
+        public virtual DbSet<FlowRule> FlowRules { get; set; }
+
+        public virtual DbSet<FlowRuleNextLesson> FlowRuleNextLessons { get; set; }
+
+        public virtual DbSet<FlowRuleProblem> FlowRuleProblems { get; set; }
 
         public virtual DbSet<ProblemAnswerOption> ProblemAnswerOptions { get; set; }
 
@@ -127,7 +135,7 @@ namespace Lean.EntityFrameworkCore
 
             modelBuilder.Entity<Module>(x =>
             {
-                x.Property(e => e.Name).IsRequired();
+                x.Property(e => e.Name);
                 x.HasMany(e => e.Lessons).WithOne(e => e.ModuleFk).HasForeignKey(e => e.ModuleId).OnDelete(DeleteBehavior.Cascade);
             });
 
@@ -158,6 +166,7 @@ namespace Lean.EntityFrameworkCore
 
             modelBuilder.Entity<ProblemAnswerOption>(x =>
             {
+                x.HasIndex(e => new { e.ProblemId, e.IsCorrect });
             });
 
             modelBuilder.Entity<UserLearningProgress>(x =>
@@ -195,6 +204,23 @@ namespace Lean.EntityFrameworkCore
                 x.HasKey(e => new { e.TagId, e.UserId });
                 x.HasOne(e => e.UserFk).WithMany().HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.NoAction);
                 x.HasOne(e => e.TagFk).WithMany().HasForeignKey(e => e.TagId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<FlowRule>(x =>
+            {
+                x.HasOne(e => e.LessonFk).WithMany(e => e.FlowRules).HasForeignKey(e => e.LessonId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<FlowRuleNextLesson>(x =>
+            {
+                x.HasOne(e => e.NextLessonFk).WithMany().HasForeignKey(e => e.NextLessonId).OnDelete(DeleteBehavior.NoAction);
+                x.HasOne<FlowRule>().WithMany(e => e.FlowRuleNextLessons).HasForeignKey(e => e.FlowRuleId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<FlowRuleProblem>(x =>
+            {
+                x.HasOne(e => e.ProblemFk).WithMany().HasForeignKey(e => e.ProblemId).OnDelete(DeleteBehavior.NoAction);
+                x.HasOne<FlowRule>().WithMany(e => e.FlowRuleProblems).HasForeignKey(e => e.FlowRuleId).OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.ConfigurePersistedGrantEntity();

@@ -18,8 +18,8 @@ namespace Lean.Lessons
         public int LessonId { get; set; }
         public virtual Lesson LessonFk { get; set; }
 
-        public virtual List<ProblemAnswerOption> ProblemAnswerOptions { get; set; }
+        public virtual List<ProblemAnswerOption> ProblemAnswerOptions { get; set; } = new List<ProblemAnswerOption>();
 
-        public virtual List<ProblemTag> ProblemTags { get; set; }
+        public virtual List<ProblemTag> ProblemTags { get; set; } = new List<ProblemTag>();
     }
 }

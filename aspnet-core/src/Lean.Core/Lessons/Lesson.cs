@@ -22,6 +22,7 @@ namespace Lean.Lessons
         public int ModuleId { get; set; }
         public virtual Module ModuleFk { get; set; }
 
-        public virtual List<Problem> Problems { get; set; }
+        public virtual List<Problem> Problems { get; set; } = new List<Problem>();
+        public virtual List<FlowRule> FlowRules { get; set; } = new List<FlowRule>();
     }
 }

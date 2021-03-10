@@ -4,14 +4,16 @@ using Lean.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Lean.Migrations
 {
     [DbContext(typeof(LeanDbContext))]
-    partial class LeanDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210310173532_Update FlowRule for default rules")]
+    partial class UpdateFlowRulefordefaultrules
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1945,6 +1947,7 @@ namespace Lean.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -2020,7 +2023,7 @@ namespace Lean.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProblemId", "IsCorrect");
+                    b.HasIndex("ProblemId");
 
                     b.ToTable("ProblemAnswerOptions");
                 });
