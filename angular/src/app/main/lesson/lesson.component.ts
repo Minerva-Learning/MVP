@@ -24,6 +24,12 @@ export class LessonComponent extends AppComponentBase implements OnInit {
             showNextButton: false,
             showPreviousButton: false
             // toolbarExtraButtons: [{ text: 'Finish', class: 'btn btn-primary', event: () => { alert("Finished!!!"); } }]
+        },
+        anchorSettings: {
+            anchorClickable: false,
+            enableAllAnchors: false,
+            markAllPreviousStepsAsDone: true,
+            markDoneStep: false
         }
     };
 
