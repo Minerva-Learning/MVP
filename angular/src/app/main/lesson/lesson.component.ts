@@ -82,6 +82,10 @@ export class LessonComponent extends AppComponentBase implements OnInit {
     toNext() {
         this.lessonsServiceProxy.moveToNextStep().subscribe(x => {
             this.currentLesson = x;
+            if (x.step == LessonStep.MvpCompleted) {
+                x.step = LessonStep.Score;
+                this.message.success("Congratulations! You have successfully completed our subtraction course!", "Course completed");
+            }
             this.ngWizardService.show(this.getStepNumber(x.step));
         });
         // this.ngWizardService.next();

@@ -20784,6 +20784,7 @@ export enum LessonStep {
     Lesson = 1,
     Activity = 2,
     ProblemSet = 3,
+    MvpCompleted = 4,
 }
 
 export enum ProblemType {

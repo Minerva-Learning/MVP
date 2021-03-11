@@ -330,7 +330,12 @@ namespace Lean.Lessons
                 };
                 if (conditionSatisfied)
                 {
-                    var nextLessonIdsOrdered = rule.FlowRuleNextLessons.OrderBy(x => x.Priority).Select(x => x.NextLessonId).ToList();
+                    var nextLessonIdsOrdered = rule.FlowRuleNextLessons?.OrderBy(x => x.Priority).Select(x => x.NextLessonId).ToList();
+                    if (nextLessonIdsOrdered is null || nextLessonIdsOrdered.Count == 0)
+                    {
+                        learningProgress.Step = LessonStep.MvpCompleted;
+                        return;
+                    }
                     var answerSets = await _userLessonAnswerSetRepository.GetAll().AsNoTracking()
                         .Where(x => nextLessonIdsOrdered.Contains(x.LessonId))
                         .ToListAsync();
@@ -354,7 +359,7 @@ namespace Lean.Lessons
 
         private async Task<List<TagScoreDto>> GetTagScores(UserLearningProgress learningProgress)
         {
-            if (learningProgress.Step != LessonStep.Score)
+            if (learningProgress.Step != LessonStep.Score || learningProgress.Step != LessonStep.MvpCompleted)
             {
                 return null;
             }
@@ -378,6 +383,7 @@ namespace Lean.Lessons
                         TagName = x.Name
                     };
                 })
+                .OrderBy(x => x.TagName)
                 .ToList();
             return tagScores;
         }
@@ -424,6 +430,7 @@ namespace Lean.Lessons
             LessonStep.Activity => LessonStep.ProblemSet,
             LessonStep.ProblemSet => LessonStep.Score,
             LessonStep.Score => LessonStep.Lesson,
+            LessonStep.MvpCompleted => LessonStep.MvpCompleted, // No escape (:
             _ => throw new NotImplementedException()
         };
 
@@ -433,6 +440,7 @@ namespace Lean.Lessons
             LessonStep.ProblemSet => LessonStep.ProblemSet, // Can't move back from problem set
             LessonStep.Score => LessonStep.Score, // Can't move back from score page
             LessonStep.Lesson => LessonStep.Score,
+            LessonStep.MvpCompleted => LessonStep.MvpCompleted,
             _ => throw new NotImplementedException()
         };
 

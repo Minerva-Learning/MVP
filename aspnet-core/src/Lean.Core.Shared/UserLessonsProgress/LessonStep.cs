@@ -11,6 +11,7 @@ namespace Lean.UserLessonsProgress
         Score,
         Lesson,
         Activity,
-        ProblemSet
+        ProblemSet,
+        MvpCompleted
     }
 }
