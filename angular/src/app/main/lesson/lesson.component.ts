@@ -17,6 +17,7 @@ export class LessonComponent extends AppComponentBase implements OnInit {
     ProblemType = ProblemType;
 
     currentLesson: CurrentLessonDto = null;
+    showNextLessonsOnScore = true;
 
     config: NgWizardConfig = {
         selected: 0,
@@ -84,6 +85,7 @@ export class LessonComponent extends AppComponentBase implements OnInit {
             this.currentLesson = x;
             if (x.step == LessonStep.MvpCompleted) {
                 x.step = LessonStep.Score;
+                this.showNextLessonsOnScore = false;
                 this.message.success("Congratulations! You have successfully completed our subtraction course!", "Course completed");
             }
             this.ngWizardService.show(this.getStepNumber(x.step));

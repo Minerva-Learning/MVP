@@ -16,7 +16,7 @@
                     <div class="row align-items-center bg-white">
                         <ng-wizard [config]="config" (stepChanged)="stepChanged($event)" class="w-100">
                             <ng-wizard-step [title]="'Tag Score'">
-                                <div class="d-flex flex-column align-items-center">
+                                <div class="d-flex flex-column align-items-center" *ngIf="showNextLessonsOnScore">
                                     <button class="btn btn-primary font-weight-bold" type="button"
                                             (click)="toNext()">
                                         Next Lesson
