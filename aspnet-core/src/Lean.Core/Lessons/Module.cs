@@ -11,6 +11,8 @@ namespace Lean.Lessons
     {
         public string Name { get; set; }
 
+        public int Priority { get; set; }
+
         public int CourseId { get; set; }
 
         public virtual Course CourseFk { get; set; }

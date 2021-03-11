@@ -16,6 +16,8 @@ namespace Lean.Lessons
 
         public int? CorrectAnswersCount { get; set; }
 
+        public int Priority { get; set; }
+
         public virtual List<FlowRuleProblem> FlowRuleProblems { get; set; } = new List<FlowRuleProblem>();
 
         public virtual List<FlowRuleNextLesson> FlowRuleNextLessons { get; set; } = new List<FlowRuleNextLesson>();

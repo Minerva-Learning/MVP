@@ -35,6 +35,7 @@ namespace Lean.Lessons
         private readonly IRepository<UserProblemAnswerResult> _userProblemResultRepository;
         private readonly IRepository<UserTagRating, string> _userTagRatingRepository;
         private readonly IRepository<Tag> _tagRepository;
+        private readonly IRepository<FlowRule> _flowRuleRepository;
         private readonly ICourseExcelImporter _courseExcelImporter;
         private readonly RatingVariables _ratingVariables;
 
@@ -48,6 +49,7 @@ namespace Lean.Lessons
             IRepository<UserProblemAnswerResult> userProblemResultRepository,
             IRepository<UserTagRating, string> userTagRatingRepository,
             IRepository<Tag> tagRepository,
+            IRepository<FlowRule> flowRuleRepository,
             IOptions<RatingVariables> ratingVariables,
             ICourseExcelImporter courseExcelImporter)
         {
@@ -60,6 +62,7 @@ namespace Lean.Lessons
             _userProblemResultRepository = userProblemResultRepository;
             _userTagRatingRepository = userTagRatingRepository;
             _tagRepository = tagRepository;
+            _flowRuleRepository = flowRuleRepository;
             _courseExcelImporter = courseExcelImporter;
             _ratingVariables = ratingVariables.Value;
         }
@@ -75,6 +78,15 @@ namespace Lean.Lessons
         {
             var learningProgress = await GetCurrentUserLearningProgress();
             await TransferProgressToNextStep(learningProgress);
+
+            var currentLesson = await GetCurrentLessonDto(learningProgress);
+            return currentLesson;
+        }
+
+        public async Task<CurrentLessonDto> MoveToPreviousStep()
+        {
+            var learningProgress = await GetCurrentUserLearningProgress();
+            learningProgress.Step = GetPreviousStep(learningProgress.Step);
 
             var currentLesson = await GetCurrentLessonDto(learningProgress);
             return currentLesson;
@@ -106,7 +118,7 @@ namespace Lean.Lessons
                     TextAnswer = textAnswer,
                     ProblemId = problem.Id,
                     UserLessonAnswerSetFk = answerSet
-                    
+
                 };
                 await _userProblemResultRepository.InsertAsync(problemResult);
                 await UpdateUserTagRatings(isAnswerCorrect, problem.ProblemTags);
@@ -220,7 +232,10 @@ namespace Lean.Lessons
                 .FirstOrDefaultAsync(x => x.UserId == AbpSession.UserId.Value);
             if (learningProgress is null)
             {
-                var firstLessonId = await _lessonRepository.GetAll().Select(x => x.Id).FirstOrDefaultAsync();
+                var firstLessonId = await _lessonRepository.GetAll()
+                    .Where(x => x.IsInitial)
+                    .OrderBy(x => x.ModuleFk.Priority)
+                    .Select(x => x.Id).FirstOrDefaultAsync();
                 learningProgress = new UserLearningProgress
                 {
                     UserId = AbpSession.UserId.Value,
@@ -244,8 +259,7 @@ namespace Lean.Lessons
 
             if (nextStep == LessonStep.Lesson)
             {
-                await MoveToNewLesson(learningProgress);
-                // Moving to the next lesson logic.
+                await MoveToNextLesson(learningProgress);
             }
         }
 
@@ -260,9 +274,53 @@ namespace Lean.Lessons
             };
         }
 
-        private async Task MoveToNewLesson(UserLearningProgress learningProgress)
+        private async Task MoveToNextLesson(UserLearningProgress learningProgress)
         {
             // TODO: Implement moving to new lessons.
+            var lessonId = learningProgress.CurrentLessonId;
+            var mostRecentAnswerSet = await _userLessonAnswerSetRepository.GetAll().AsNoTracking()
+                .Include(x => x.Answers)
+                .Where(x => x.UserId == AbpSession.UserId.Value
+                            && x.LessonId == lessonId
+                            && x.Answers.Count == x.LessonFk.Problems.Count)
+                .OrderByDescending(x => x.CreationTime)
+                .FirstOrDefaultAsync();
+            if (mostRecentAnswerSet is null)
+            {
+                return; // Very first lesson.
+            }
+
+            var flowRules = await _flowRuleRepository.GetAll().AsNoTracking()
+                .Include(x => x.FlowRuleNextLessons)
+                .Include(x => x.FlowRuleProblems)
+                .Where(x => x.LessonId == lessonId)
+                .OrderBy(x => x.Priority)
+                .ToListAsync();
+            var answersMap = mostRecentAnswerSet.Answers.ToDictionary(x => x.ProblemId, x => x.IsCorrect);
+            foreach (var rule in flowRules)
+            {
+                var correctAnswersCount = rule.FlowRuleProblems.Count(x => answersMap[x.ProblemId]);
+                var conditionSatisfied = rule.Condition switch 
+                { 
+                    FlowCondition.LessThan => correctAnswersCount < rule.CorrectAnswersCount,
+                    FlowCondition.MoreThan => correctAnswersCount > rule.CorrectAnswersCount,
+                    FlowCondition.Default => true,
+                    _ => false // Something went wrong
+                };
+                if (conditionSatisfied)
+                {
+                    var nextLessonIdsOrdered = rule.FlowRuleNextLessons.OrderBy(x => x.Priority).Select(x => x.NextLessonId).ToList();
+                    var answerSets = await _userLessonAnswerSetRepository.GetAll().AsNoTracking()
+                        .Where(x => nextLessonIdsOrdered.Contains(x.LessonId))
+                        .ToListAsync();
+                    var nextLessonId = nextLessonIdsOrdered
+                        .Select(x => (int?)x)
+                        .FirstOrDefault(x => !answerSets.Any(a => a.LessonId == x)) 
+                        ?? nextLessonIdsOrdered.First();
+                    learningProgress.CurrentLessonId = nextLessonId;
+                    return;
+                }
+            }
         }
 
         private async Task<LessonDto> GetLesson(int currentLessonId)
@@ -345,6 +403,15 @@ namespace Lean.Lessons
             LessonStep.Activity => LessonStep.ProblemSet,
             LessonStep.ProblemSet => LessonStep.Score,
             LessonStep.Score => LessonStep.Lesson,
+            _ => throw new NotImplementedException()
+        };
+
+        private LessonStep GetPreviousStep(LessonStep step) => step switch
+        {
+            LessonStep.Activity => LessonStep.Lesson,
+            LessonStep.ProblemSet => LessonStep.ProblemSet, // Can't move back from problem set
+            LessonStep.Score => LessonStep.Score, // Can't move back from score page
+            LessonStep.Lesson => LessonStep.Score,
             _ => throw new NotImplementedException()
         };
 

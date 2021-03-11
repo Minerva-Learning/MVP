@@ -78,7 +78,10 @@ export class LessonComponent extends AppComponentBase implements OnInit {
     }
 
     goBack() {
-        this.ngWizardService.previous();
+        this.lessonsServiceProxy.moveToPreviousStep().subscribe(x => {
+            this.currentLesson = x;
+            this.ngWizardService.show(this.getStepNumber(x.step));
+        });
     }
 
     submitProblem() {

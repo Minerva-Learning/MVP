@@ -36,7 +36,7 @@ namespace Lean.Lessons.Importing
                     return modulesMap[id];
                 }
 
-                var module = new Module();
+                var module = new Module { Priority = id };
                 modulesMap.Add(id, module);
                 course.Modules.Add(module);
                 return module;
@@ -162,6 +162,7 @@ namespace Lean.Lessons.Importing
                 var nextLessonIds = GetStringValue(row.GetCell(3)).Trim().Split(",").Select(int.Parse);
                 var flowRule = new FlowRule
                 {
+                    Priority = ri,
                     Condition = condition,
                     CorrectAnswersCount = correctCount,
                     FlowRuleProblems = problemIds.Select(pid => new FlowRuleProblem
