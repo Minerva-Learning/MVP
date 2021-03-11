@@ -370,7 +370,7 @@ namespace Lean.Lessons
                 .ToListAsync();
 
             var userTagRatings = await _userTagRatingRepository.GetAll().AsNoTracking()
-                .Where(x => x.UserId == AbpSession.UserId.Value && x.TagFk.ModuleId == moduleId)
+                .Where(x => x.UserId == AbpSession.UserId.Value /*&& x.TagFk.ModuleId == moduleId*/)
                 .ToListAsync();
             var userTagRatingsTagMap = userTagRatings.ToDictionary(x => x.TagId, x => x.Rating);
 
@@ -410,11 +410,14 @@ namespace Lean.Lessons
         {
             var baseQuery = _problemRepository.GetAll()
                 .Where(x => x.LessonId == learningProgress.CurrentLessonId)
-                .OrderBy(x => x.Id);
+                .OrderBy(x => x.Number);
             if (learningProgress.CurrentProblemId.HasValue)
             {
+                var currentProblemNumber = await baseQuery.Where(x => x.Id == learningProgress.CurrentProblemId)
+                    .Select(x => x.Number)
+                    .FirstOrDefaultAsync();
                 var id = await baseQuery
-                    .Where(x => x.Id > learningProgress.CurrentProblemId)
+                    .Where(x => x.Number > currentProblemNumber)
                     .Select<Problem, int?>(x => x.Id)
                     .FirstOrDefaultAsync();
                 return id;

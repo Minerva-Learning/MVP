@@ -159,7 +159,9 @@ namespace Lean.Lessons.Importing
                 var problemIds = ParseProblemIds(GetStringValue(row.GetCell(1)));
                 var lesson = lessonsMap[lessonId];
                 var (condition, correctCount) = ParseFlowCondition(GetStringValue(row.GetCell(2)));
-                var nextLessonIds = GetStringValue(row.GetCell(3)).Trim().Split(",").Select(int.Parse);
+                var nextLessonIds = GetStringValue(row.GetCell(3)).Trim().Split(",")
+                    .Where(x => !string.IsNullOrEmpty(x))
+                    .Select(int.Parse);
                 var flowRule = new FlowRule
                 {
                     Priority = ri,
@@ -241,6 +243,7 @@ namespace Lean.Lessons.Importing
                 }
                 catch (Exception)
                 {
+                    throw;
                     //ignore
                 }
             }
