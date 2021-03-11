@@ -15,6 +15,9 @@ namespace Lean.Lessons.Dto
 
         public ProblemDto Problem { get; set; }
 
+        public bool? IsPreviousAnswerCorrect { get; set; }
+        public string CorrectAnswer { get; set; }
+
         public List<TagScoreDto> TagScores {get;set;}
     }
 }

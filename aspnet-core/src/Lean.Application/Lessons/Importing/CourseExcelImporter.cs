@@ -219,7 +219,7 @@ namespace Lean.Lessons.Importing
         }
 
         private bool IsDefaultFlowRule(string value) =>
-            (value == null || value.EqualsIgnoreCase("*"));
+            (string.IsNullOrEmpty(value) || value.EqualsIgnoreCase("*"));
 
         private T ProcessWorksheet<T>(ISheet worksheet, T accumulator, Action<ISheet, int, T> processExcelRow)
         {

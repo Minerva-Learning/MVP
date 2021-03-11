@@ -20935,6 +20935,8 @@ export class CurrentLessonDto implements ICurrentLessonDto {
     lesson!: LessonDto;
     step!: LessonStep;
     problem!: ProblemDto;
+    isPreviousAnswerCorrect!: boolean | undefined;
+    correctAnswer!: string | undefined;
     tagScores!: TagScoreDto[] | undefined;
 
     constructor(data?: ICurrentLessonDto) {
@@ -20951,6 +20953,8 @@ export class CurrentLessonDto implements ICurrentLessonDto {
             this.lesson = _data["lesson"] ? LessonDto.fromJS(_data["lesson"]) : <any>undefined;
             this.step = _data["step"];
             this.problem = _data["problem"] ? ProblemDto.fromJS(_data["problem"]) : <any>undefined;
+            this.isPreviousAnswerCorrect = _data["isPreviousAnswerCorrect"];
+            this.correctAnswer = _data["correctAnswer"];
             if (Array.isArray(_data["tagScores"])) {
                 this.tagScores = [] as any;
                 for (let item of _data["tagScores"])
@@ -20971,6 +20975,8 @@ export class CurrentLessonDto implements ICurrentLessonDto {
         data["lesson"] = this.lesson ? this.lesson.toJSON() : <any>undefined;
         data["step"] = this.step;
         data["problem"] = this.problem ? this.problem.toJSON() : <any>undefined;
+        data["isPreviousAnswerCorrect"] = this.isPreviousAnswerCorrect;
+        data["correctAnswer"] = this.correctAnswer;
         if (Array.isArray(this.tagScores)) {
             data["tagScores"] = [];
             for (let item of this.tagScores)
@@ -20984,6 +20990,8 @@ export interface ICurrentLessonDto {
     lesson: LessonDto;
     step: LessonStep;
     problem: ProblemDto;
+    isPreviousAnswerCorrect: boolean | undefined;
+    correctAnswer: string | undefined;
     tagScores: TagScoreDto[] | undefined;
 }
 

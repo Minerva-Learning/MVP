@@ -1,9 +1,10 @@
-import { Component, Injector, OnInit } from '@angular/core';
+import { Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { AppComponentBase } from '@shared/common/app-component-base';
 import { CurrentLessonDto, LessonsServiceProxy, LessonStep, ProblemType, SubmitProblemAnswerInput } from '@shared/service-proxies/service-proxies';
 import { NgWizardConfig, NgWizardService, StepChangedArgs, STEP_STATE, THEME } from 'ng-wizard';
 import { Options } from '@angular-slider/ngx-slider';
+import { AnswerResultModalComponent } from './answer-result-modal/answer-result-modal.component';
 
 @Component({
     templateUrl: './lesson.component.html',
@@ -11,6 +12,7 @@ import { Options } from '@angular-slider/ngx-slider';
     animations: [appModuleAnimation()]
 })
 export class LessonComponent extends AppComponentBase implements OnInit {
+    @ViewChild('answerResultModal') answerResultModal: AnswerResultModalComponent;
     StepStates = STEP_STATE;
     ProblemType = ProblemType;
 
@@ -54,6 +56,14 @@ export class LessonComponent extends AppComponentBase implements OnInit {
         super(injector);
     }
 
+    get pageTitle() {
+        if (this.currentLesson?.lesson != null) {
+            return `Lesson "${this.currentLesson.lesson.name}"`;
+        }
+
+        return 'Lessons';
+    }
+
     ngOnInit(): void {
         this.lessonsServiceProxy.getCurrentLesson().subscribe(x => {
             this.currentLesson = x;
@@ -92,9 +102,18 @@ export class LessonComponent extends AppComponentBase implements OnInit {
         }
 
         this.lessonsServiceProxy.submitProblemAnswer(answer).subscribe(x => {
-            this.problemFreeAnswer = null;
-            this.currentLesson = x;
-            this.ngWizardService.show(this.getStepNumber(x.step));
+            this.answerResultModal.show(
+                x.isPreviousAnswerCorrect,
+                this.currentLesson.problem.taskDescription,
+                x.correctAnswer)
+                .subscribe(_ => {
+                    this.problemFreeAnswer = null;
+                    this.currentLesson = x;
+                    this.ngWizardService.show(this.getStepNumber(x.step));
+                });
+            // this.problemFreeAnswer = null;
+            // this.currentLesson = x;
+            // this.ngWizardService.show(this.getStepNumber(x.step));
         })
     }
 

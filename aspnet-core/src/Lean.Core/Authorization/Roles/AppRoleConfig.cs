@@ -1,5 +1,6 @@
 ﻿using Abp.MultiTenancy;
 using Abp.Zero.Configuration;
+using System.Collections.Generic;
 
 namespace Lean.Authorization.Roles
 {
@@ -34,8 +35,13 @@ namespace Lean.Authorization.Roles
             roleManagementConfig.StaticRoles.Add(
                 new StaticRoleDefinition(
                     StaticRoleNames.Tenants.Student,
-                    MultiTenancySides.Tenant)
-                );
+                    MultiTenancySides.Tenant) 
+                {
+                GrantedPermissions =
+                {
+                    AppPermissions.Pages_Tenant_Lessons
+                }
+            });
         }
     }
 }

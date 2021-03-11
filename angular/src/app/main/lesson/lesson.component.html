@@ -1,6 +1,6 @@
 <div [@routerTransition]>
     <div class="content d-flex flex-column flex-column-fluid">
-        <sub-header [title]="'Lessons'">
+        <sub-header [title]="pageTitle">
             <!-- <div role="actions">
                 <button *ngIf="'Pages.Tenants.Create' | permission"
                     class="btn btn-primary"
@@ -42,13 +42,11 @@
 
                             <ng-wizard-step [title]="'Lesson'">
                                 <div *ngIf="currentLesson?.lesson">
-                                    <div class="" *ngIf="currentLesson.lesson.lessonVideoHtml" [innerHTML]="currentLesson.lesson.lessonVideoHtml | safe">
-                                        <!-- <iframe width="560" height="315" [src]="currentLesson.lesson.lessonVideoUrl | safe"
-                                                frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
-                                        </iframe> -->
+                                    <div class="" *ngIf="currentLesson.lesson.lessonVideoHtml"
+                                         [innerHTML]="currentLesson.lesson.lessonVideoHtml | safe">
                                     </div>
                                     <div *ngIf="currentLesson.lesson.lessonText">
-                                        <p>{{ currentLesson.lesson.lessonText | safe }}</p>
+                                        <p [innerHTML]="currentLesson.lesson.lessonText | safe"></p>
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-start">
@@ -65,13 +63,11 @@
 
                             <ng-wizard-step [title]="'Activity'">
                                 <div *ngIf="currentLesson?.lesson">
-                                    <div class="" *ngIf="currentLesson.lesson.activityVideoHtml" [innerHTML]="currentLesson.lesson.activityVideoHtml | safe">
-                                        <!-- <iframe width="560" height="315" [src]="currentLesson.lesson.activityVideoHtml | safe"
-                                                frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
-                                        </iframe> -->
+                                    <div class="" *ngIf="currentLesson.lesson.activityVideoHtml"
+                                         [innerHTML]="currentLesson.lesson.activityVideoHtml | safe">
                                     </div>
                                     <div *ngIf="currentLesson.lesson.activityText">
-                                        <p>{{ currentLesson.lesson.activityText | safe }}</p>
+                                        <p [innerHTML]="currentLesson.lesson.activityText | safe"></p>
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-start">
@@ -142,3 +138,4 @@
         </div>
     </div>
 </div>
+<app-answer-result-modal #answerResultModal></app-answer-result-modal>

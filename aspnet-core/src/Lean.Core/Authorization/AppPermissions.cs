@@ -78,6 +78,8 @@
 
         public const string Pages_Administration_Tenant_SubscriptionManagement = "Pages.Administration.Tenant.SubscriptionManagement";
 
+        public const string Pages_Tenant_Lessons = "Pages.Tenant.Lessons";
+
         //HOST-SPECIFIC PERMISSIONS
 
         public const string Pages_Editions = "Pages.Editions";

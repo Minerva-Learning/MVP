@@ -1,0 +1,27 @@
+<div appBsModal #answerResultModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editModal" aria-hidden="true" [config]="{backdrop: 'static', keyboard: !saving}">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <!-- <div class="modal-header">
+                <h4 class="modal-title">
+                    <span></span>
+                </h4>
+                <button type="button" class="close" (click)="close()" [attr.aria-label]="l('Close')">
+                    <i aria-hidden="true" class="ki ki-close"></i>
+                </button>
+            </div> -->
+            <div class="modal-body text-center">
+                <div class="alert alert-secondary" *ngIf="!isAnswerCorrect">
+                    <p class="m-0">{{problemText}}</p>
+                </div>
+                <p class="h4">
+                    {{messageText}}
+                </p>
+            </div>
+            <div class="modal-footer p-2">
+                <button type="button" class="btn btn-primary font-weight-bold" (click)="close()">
+                    <i class="fas fa-arrow-right"></i> <span>Continue</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

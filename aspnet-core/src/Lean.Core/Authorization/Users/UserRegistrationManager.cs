@@ -15,6 +15,7 @@ using Lean.Configuration;
 using Lean.Debugging;
 using Lean.MultiTenancy;
 using Lean.Notifications;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lean.Authorization.Users
 {
@@ -81,6 +82,12 @@ namespace Lean.Authorization.Users
             foreach (var defaultRole in defaultRoles)
             {
                 user.Roles.Add(new UserRole(tenant.Id, user.Id, defaultRole.Id));
+            }
+
+            var studentRole = await _roleManager.Roles.FirstOrDefaultAsync(r => r.Name == StaticRoleNames.Tenants.Student);
+            if (studentRole is not null) 
+            {
+                user.Roles.Add(new UserRole(tenant.Id, user.Id, studentRole.Id));
             }
 
             await _userManager.InitializeOptionsAsync(AbpSession.TenantId);

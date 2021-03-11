@@ -2,6 +2,8 @@
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.UI;
+using IdentityServer4.Endpoints.Results;
+using Lean.Authorization;
 using Lean.Lessons.Dto;
 using Lean.Lessons.Dto.Import;
 using Lean.Lessons.Importing;
@@ -23,7 +25,7 @@ using System.Threading.Tasks;
 
 namespace Lean.Lessons
 {
-    [AbpAuthorize]
+    [AbpAuthorize(AppPermissions.Pages_Tenant_Lessons)]
     public class LessonsAppService : LeanAppServiceBase, ILessonsAppService
     {
         private readonly IRepository<Course> _courseRepository;
@@ -106,12 +108,15 @@ namespace Lean.Lessons
                 .Where(x => x.Id == input.ProblemId)
                 .FirstOrDefaultAsync();
 
+            var isAnswerCorrect = false;
+            var correctAnswerText = string.Empty;
             var answerSet = await GetCurrentUserLessonAnswerSet(learningProgress.CurrentLessonId);
             if (problem.Type == ProblemType.FreeText)
             {
                 var textAnswer = input.FreeTextAnswer.Trim();
                 var correctAnswer = problem.ProblemAnswerOptions.First(x => x.IsCorrect);
-                var isAnswerCorrect = correctAnswer.Text == textAnswer;
+                correctAnswerText = correctAnswer.Text;
+                isAnswerCorrect = IsAnswerCorrect(correctAnswerText, textAnswer);
                 var problemResult = new UserProblemAnswerResult
                 {
                     IsCorrect = isAnswerCorrect,
@@ -135,7 +140,23 @@ namespace Lean.Lessons
             }
 
             var currentLesson = await GetCurrentLessonDto(learningProgress);
+            currentLesson.IsPreviousAnswerCorrect = isAnswerCorrect;
+            currentLesson.CorrectAnswer = correctAnswerText;
             return currentLesson;
+        }
+
+        private bool IsAnswerCorrect(string correctAnswer, string answer)
+        {
+            correctAnswer = correctAnswer.Trim();
+            answer = answer?.Trim();
+            var isSampleNumber = Decimal.TryParse(correctAnswer, out var correctNumber);
+            var isAnswerNumber = Decimal.TryParse(answer, out var number);
+            if (isSampleNumber && isAnswerNumber)
+            {
+                return correctNumber == number;
+            }
+
+            return correctAnswer.EqualsIgnoreCase(answer);
         }
 
         private async Task<UserLessonAnswerSet> GetCurrentUserLessonAnswerSet(int lessonId)
@@ -340,7 +361,7 @@ namespace Lean.Lessons
 
             var moduleId = learningProgress.CurrentLessonFk.ModuleId;
             var moduleTags = await _tagRepository.GetAll().AsNoTracking()
-                .Where(x => x.ModuleId == moduleId)
+                //.Where(x => x.ModuleId == moduleId)
                 .ToListAsync();
 
             var userTagRatings = await _userTagRatingRepository.GetAll().AsNoTracking()
