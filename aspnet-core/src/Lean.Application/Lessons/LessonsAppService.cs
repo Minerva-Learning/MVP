@@ -139,6 +139,8 @@ namespace Lean.Lessons
                 throw new NotImplementedException();
             }
 
+            await CurrentUnitOfWork.SaveChangesAsync();
+
             var currentLesson = await GetCurrentLessonDto(learningProgress);
             currentLesson.IsPreviousAnswerCorrect = isAnswerCorrect;
             currentLesson.CorrectAnswer = correctAnswerText;
