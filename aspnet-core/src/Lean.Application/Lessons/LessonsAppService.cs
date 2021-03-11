@@ -359,7 +359,7 @@ namespace Lean.Lessons
 
         private async Task<List<TagScoreDto>> GetTagScores(UserLearningProgress learningProgress)
         {
-            if (learningProgress.Step != LessonStep.Score || learningProgress.Step != LessonStep.MvpCompleted)
+            if (learningProgress.Step != LessonStep.Score && learningProgress.Step != LessonStep.MvpCompleted)
             {
                 return null;
             }
