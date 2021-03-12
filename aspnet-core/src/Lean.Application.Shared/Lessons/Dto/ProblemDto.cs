@@ -11,6 +11,10 @@ namespace Lean.Lessons.Dto
     {
         public string Name { get; set; }
 
+        public int Number { get; set; }
+
+        public int TotalCount { get; set; }
+
         public string TaskDescription { get; set; }
 
         public ProblemType Type { get; set; }

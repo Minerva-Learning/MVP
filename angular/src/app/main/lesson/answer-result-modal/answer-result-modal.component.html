@@ -18,9 +18,11 @@
                 </p>
             </div>
             <div class="modal-footer p-2">
-                <button type="button" class="btn btn-primary font-weight-bold" (click)="close()" autofocus>
-                    <i class="fas fa-arrow-right"></i> <span>Continue</span>
-                </button>
+                <form (submit)="close()">
+                    <button type="submit" class="btn btn-primary font-weight-bold" autoFocus>
+                        <i class="fas fa-arrow-right"></i> <span>Continue</span>
+                    </button>
+                </form>
             </div>
         </div>
     </div>

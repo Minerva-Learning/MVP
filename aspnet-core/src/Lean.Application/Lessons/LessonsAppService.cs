@@ -333,11 +333,17 @@ namespace Lean.Lessons
                 if (conditionSatisfied)
                 {
                     var nextLessonIdsOrdered = rule.FlowRuleNextLessons?.OrderBy(x => x.Priority).Select(x => x.NextLessonId).ToList();
-                    if (nextLessonIdsOrdered is null || nextLessonIdsOrdered.Count == 0)
+                    var firstLessonId = await _lessonRepository.GetAll()
+                        .Where(x => x.IsInitial)
+                        .OrderBy(x => x.ModuleFk.Priority)
+                        .Select(x => x.Id).FirstOrDefaultAsync();
+                    if (nextLessonIdsOrdered is null || nextLessonIdsOrdered.Count == 0 || nextLessonIdsOrdered[0] == firstLessonId)
                     {
                         learningProgress.Step = LessonStep.MvpCompleted;
+                        learningProgress.CurrentLessonId = firstLessonId;
                         return;
                     }
+
                     var answerSets = await _userLessonAnswerSetRepository.GetAll().AsNoTracking()
                         .Where(x => nextLessonIdsOrdered.Contains(x.LessonId))
                         .ToListAsync();
@@ -401,7 +407,9 @@ namespace Lean.Lessons
                 }
 
                 var problemQuery = _problemRepository.GetAll().Where(x => x.Id == learningProgress.CurrentProblemId);
+                var totalCount = await _problemRepository.GetAll().Where(x => x.LessonId == learningProgress.CurrentLessonId).CountAsync();
                 var problem = await ObjectMapper.ProjectTo<ProblemDto>(problemQuery).FirstOrDefaultAsync();
+                problem.TotalCount = totalCount;
                 return problem;
             }
 
@@ -435,7 +443,7 @@ namespace Lean.Lessons
             LessonStep.Activity => LessonStep.ProblemSet,
             LessonStep.ProblemSet => LessonStep.Score,
             LessonStep.Score => LessonStep.Lesson,
-            LessonStep.MvpCompleted => LessonStep.MvpCompleted, // No escape (:
+            LessonStep.MvpCompleted => LessonStep.Lesson,
             _ => throw new NotImplementedException()
         };
 

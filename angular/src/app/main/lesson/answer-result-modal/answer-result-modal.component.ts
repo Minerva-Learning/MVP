@@ -43,20 +43,26 @@ export class AnswerResultModalComponent extends AppComponentBase implements OnIn
 
     close(): void {
         this.currentCloseSybject.next();
-        this.currentCloseSybject.complete();
-        this.currentCloseSybject.unsubscribe();
-        this.currentCloseSybject = null;
+        this.disposeSubject();
         this.messageText = null;
         this.problemText = null;
         this.modal.hide();
     }
 
     show(isAnswerCorrect: boolean, problemText: string, correctAnswer?: string) {
-        this.isAnswerCorrect = isAnswerCorrect;
-        this.problemText = problemText;
-        this.setMessage(isAnswerCorrect, correctAnswer);
+        this.disposeSubject();
         this.currentCloseSybject = new ReplaySubject<void>(1);
-        this.modal.show();
+        this.setMessage(isAnswerCorrect, correctAnswer);
+        if (isAnswerCorrect) {
+            this.notify.success(this.messageText, null, { position: 'top', timer: 2000, customClass: { popup: 'success-toast' } });
+            this.currentCloseSybject.next();
+        }
+        else {
+            this.isAnswerCorrect = isAnswerCorrect;
+            this.problemText = problemText;
+            this.modal.show();
+        }
+
         return this.currentCloseSybject.asObservable();
     }
 
@@ -64,5 +70,11 @@ export class AnswerResultModalComponent extends AppComponentBase implements OnIn
         this.messageText = isAnswerCorrect
             ? correctMessages[getRandomInt(correctMessages.length - 1)]
             : abp.utils.formatString(incorrectMessages[getRandomInt(incorrectMessages.length - 1)], correctAnswer);
+    }
+
+    private disposeSubject() {
+        this.currentCloseSybject?.complete();
+        this.currentCloseSybject?.unsubscribe();
+        this.currentCloseSybject = null;
     }
 }

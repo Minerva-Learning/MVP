@@ -20834,6 +20834,8 @@ export interface IProblemAnswerOptionDto {
 
 export class ProblemDto implements IProblemDto {
     name!: string | undefined;
+    number!: number;
+    totalCount!: number;
     taskDescription!: string | undefined;
     type!: ProblemType;
     problemAnswerOptions!: ProblemAnswerOptionDto[] | undefined;
@@ -20851,6 +20853,8 @@ export class ProblemDto implements IProblemDto {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
+            this.number = _data["number"];
+            this.totalCount = _data["totalCount"];
             this.taskDescription = _data["taskDescription"];
             this.type = _data["type"];
             if (Array.isArray(_data["problemAnswerOptions"])) {
@@ -20872,6 +20876,8 @@ export class ProblemDto implements IProblemDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
+        data["number"] = this.number;
+        data["totalCount"] = this.totalCount;
         data["taskDescription"] = this.taskDescription;
         data["type"] = this.type;
         if (Array.isArray(this.problemAnswerOptions)) {
@@ -20886,6 +20892,8 @@ export class ProblemDto implements IProblemDto {
 
 export interface IProblemDto {
     name: string | undefined;
+    number: number;
+    totalCount: number;
     taskDescription: string | undefined;
     type: ProblemType;
     problemAnswerOptions: ProblemAnswerOptionDto[] | undefined;

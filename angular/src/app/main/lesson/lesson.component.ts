@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { AppComponentBase } from '@shared/common/app-component-base';
 import { CurrentLessonDto, LessonsServiceProxy, LessonStep, ProblemType, SubmitProblemAnswerInput } from '@shared/service-proxies/service-proxies';
@@ -13,7 +13,9 @@ import { AnswerResultModalComponent } from './answer-result-modal/answer-result-
 })
 export class LessonComponent extends AppComponentBase implements OnInit {
     @ViewChild('answerResultModal') answerResultModal: AnswerResultModalComponent;
+    @ViewChild('problemInput', { static: false }) problemInput: ElementRef<HTMLInputElement>;
     StepStates = STEP_STATE;
+    LessonStep = LessonStep;
     ProblemType = ProblemType;
 
     currentLesson: CurrentLessonDto = null;
@@ -85,7 +87,7 @@ export class LessonComponent extends AppComponentBase implements OnInit {
             this.currentLesson = x;
             if (x.step == LessonStep.MvpCompleted) {
                 x.step = LessonStep.Score;
-                this.showNextLessonsOnScore = false;
+                //this.showNextLessonsOnScore = false;
                 this.message.success("Congratulations! You have successfully completed our subtraction course!", "Course completed");
             }
             this.ngWizardService.show(this.getStepNumber(x.step));
@@ -116,6 +118,7 @@ export class LessonComponent extends AppComponentBase implements OnInit {
                     this.problemFreeAnswer = null;
                     this.currentLesson = x;
                     this.ngWizardService.show(this.getStepNumber(x.step));
+                    this.problemInput?.nativeElement?.focus();
                 });
             // this.problemFreeAnswer = null;
             // this.currentLesson = x;

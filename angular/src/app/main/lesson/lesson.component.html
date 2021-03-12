@@ -41,7 +41,7 @@
                             </ng-wizard-step>
 
                             <ng-wizard-step [title]="'Lesson'">
-                                <div *ngIf="currentLesson?.lesson">
+                                <div *ngIf="currentLesson?.lesson && currentLesson?.step === LessonStep.Lesson">
                                     <div class="" *ngIf="currentLesson.lesson.lessonVideoHtml"
                                          [innerHTML]="currentLesson.lesson.lessonVideoHtml | safe">
                                     </div>
@@ -62,7 +62,7 @@
                             </ng-wizard-step>
 
                             <ng-wizard-step [title]="'Activity'">
-                                <div *ngIf="currentLesson?.lesson">
+                                <div *ngIf="currentLesson?.lesson && currentLesson?.step === LessonStep.Activity">
                                     <div class="" *ngIf="currentLesson.lesson.activityVideoHtml"
                                          [innerHTML]="currentLesson.lesson.activityVideoHtml | safe">
                                     </div>
@@ -84,8 +84,11 @@
 
                             <ng-wizard-step [title]="'Problem Set'">
                                 <div *ngIf="currentLesson">
-                                    <form #answerForm="ngForm" *ngIf="currentLesson.problem" autocomplete="off">
-                                        <h4>{{currentLesson.problem.name}}</h4>
+                                    <form #answerForm="ngForm" *ngIf="currentLesson.problem" autocomplete="off" (submit)="submitProblem()">
+                                        <div class="h6">
+                                            Question {{currentLesson.problem.number}} of {{currentLesson.problem.totalCount}}
+                                        </div>
+                                        <div class="separator separator-solid mb-4"></div>
                                         <div>
                                             {{currentLesson.problem.taskDescription}}
                                         </div>
@@ -95,6 +98,7 @@
                                                     <label for="FreeAnswer">Answer</label>
                                                     <input id="FreeAnswer" type="text" name="Name" required class="form-control"
                                                            #problemAnswer="ngModel"
+                                                           #problemInput
                                                            [(ngModel)]="problemFreeAnswer" autoFocus>
                                                     <validation-messages [formCtrl]="problemAnswer" *ngIf="!problemAnswer.touched">
                                                     </validation-messages>
@@ -109,9 +113,8 @@
                                                 (click)="goBack()">
                                             Back
                                         </button> -->
-                                            <button type="button" class="btn btn-primary font-weight-bold"
-                                                    [disabled]="!answerForm.form.valid"
-                                                    (click)="submitProblem()">
+                                            <button type="submit" class="btn btn-primary font-weight-bold"
+                                                    [disabled]="!answerForm.form.valid">
                                                 <span>Next</span>
                                             </button>
                                         </div>
