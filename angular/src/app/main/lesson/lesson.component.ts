@@ -5,6 +5,7 @@ import { CurrentLessonDto, LessonsServiceProxy, LessonStep, ProblemType, SubmitP
 import { NgWizardConfig, NgWizardService, StepChangedArgs, STEP_STATE, THEME } from 'ng-wizard';
 import { Options } from '@angular-slider/ngx-slider';
 import { AnswerResultModalComponent } from './answer-result-modal/answer-result-modal.component';
+import { NgForm } from '@angular/forms';
 
 @Component({
     templateUrl: './lesson.component.html',
@@ -14,6 +15,7 @@ import { AnswerResultModalComponent } from './answer-result-modal/answer-result-
 export class LessonComponent extends AppComponentBase implements OnInit {
     @ViewChild('answerResultModal') answerResultModal: AnswerResultModalComponent;
     @ViewChild('problemInput', { static: false }) problemInput: ElementRef<HTMLInputElement>;
+    @ViewChild('answerForm', { static: false }) answerForm: NgForm;
     StepStates = STEP_STATE;
     LessonStep = LessonStep;
     ProblemType = ProblemType;
@@ -117,6 +119,7 @@ export class LessonComponent extends AppComponentBase implements OnInit {
                 .subscribe(_ => {
                     this.problemFreeAnswer = null;
                     this.currentLesson = x;
+                    this.answerForm.resetForm();
                     this.ngWizardService.show(this.getStepNumber(x.step));
                     this.problemInput?.nativeElement?.focus();
                 });

@@ -13,15 +13,19 @@ import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 import { finalize } from 'rxjs/operators';
 import { KeyValueListManagerComponent } from '@app/shared/common/key-value-list-manager/key-value-list-manager.component';
 import { FormControl } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { FileUpload } from 'primeng/fileupload';
 
 @Component({
     templateUrl: './tenant-settings.component.html',
+    styleUrls: ['./tenant-settings.component.less'],
     animations: [appModuleAnimation()]
 })
 export class TenantSettingsComponent extends AppComponentBase implements OnInit {
     @ViewChild('wsFederationClaimsMappingManager') wsFederationClaimsMappingManager: KeyValueListManagerComponent;
     @ViewChild('openIdConnectClaimsMappingManager') openIdConnectClaimsMappingManager: KeyValueListManagerComponent;
     @ViewChild('emailSmtpSettingsForm') emailSmtpSettingsForm: FormControl;
+    @ViewChild('ExcelFileUpload', { static: false }) excelFileUpload: FileUpload;
 
     usingDefaultTimeZone = false;
     initialTimeZone: string = null;
@@ -53,13 +57,16 @@ export class TenantSettingsComponent extends AppComponentBase implements OnInit 
     openIdConnectClaimMappings: { key: string, value: string }[];
 
     initialEmailSettings: string;
+    uploadUrl: string;
 
     constructor(
         injector: Injector,
         private _tenantSettingsService: TenantSettingsServiceProxy,
+        private _httpClient: HttpClient,
         private _tokenService: TokenService
     ) {
         super(injector);
+        this.uploadUrl = AppConsts.remoteServiceBaseUrl + '/api/services/app/Lessons/ImportCouserFromExcel';
     }
 
     ngOnInit(): void {
@@ -315,5 +322,30 @@ export class TenantSettingsComponent extends AppComponentBase implements OnInit 
             return true;
         }
         return this.emailSmtpSettingsForm.valid;
+    }
+
+    uploadExcel(data: { files: File }): void {
+        const formData: FormData = new FormData();
+        const file = data.files[0];
+        formData.append('file', file, file.name);
+        this.showMainSpinner();
+        this._httpClient
+            .post<any>(this.uploadUrl, formData)
+            .pipe(finalize(() => {
+                this.excelFileUpload.clear();
+                this.hideMainSpinner();
+            }))
+            .subscribe(response => {
+                this.hideMainSpinner();
+                if (response.success) {
+                    this.notify.success(this.l('Course was uploaded.'));
+                } else if (response.error != null) {
+                    this.notify.error(this.l('Error occured during importing course.'));
+                }
+            });
+    }
+
+    onUploadExcelError(): void {
+        this.notify.error(this.l('ImportUsersUploadFailed'));
     }
 }

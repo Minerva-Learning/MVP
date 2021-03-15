@@ -1,6 +1,7 @@
 ﻿using Abp.Authorization;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
+using Abp.EntityFrameworkCore.EFPlus;
 using Abp.UI;
 using IdentityServer4.Endpoints.Results;
 using Lean.Authorization;
@@ -459,83 +460,94 @@ namespace Lean.Lessons
 
         #region Import
         [UnitOfWork]
+        [AbpAuthorize(AppPermissions.Pages_Administration)]
         public async Task ImportCouserFromExcel([FromForm] IFormFile file)
         {
             using var stream = file.OpenReadStream();
             var course = _courseExcelImporter.Import(stream, Path.GetFileNameWithoutExtension(file.FileName));
+
+            await _userTagRatingRepository.BatchDeleteAsync(x => true);
+            await _userProblemResultRepository.BatchDeleteAsync(x => true);
+            await _userLearningProgressRepository.BatchDeleteAsync(x => true);
+            await _flowRuleRepository.BatchDeleteAsync(x => true);
+            await _problemRepository.BatchDeleteAsync(x => true);
+            await _courseRepository.BatchDeleteAsync(x => true);
+            await CurrentUnitOfWork.SaveChangesAsync();
+
             await _courseRepository.InsertAsync(course);
             //return await ImportRecipesExcel(file, false);
         }
 
-        [UnitOfWork]
-        public async Task ImportCourses(List<CourseImportDto> courseDtos)
-        {
-            foreach (var courseDto in courseDtos)
-            {
-                var course = new Course
-                {
-                    Name = courseDto.Name,
-                    Description = courseDto.Description
-                };
+        //[UnitOfWork]
+        //[AbpAuthorize(AppPermissions.Pages_Administration)]
+        //public async Task ImportCourses(List<CourseImportDto> courseDtos)
+        //{
+        //    foreach (var courseDto in courseDtos)
+        //    {
+        //        var course = new Course
+        //        {
+        //            Name = courseDto.Name,
+        //            Description = courseDto.Description
+        //        };
 
-                //var tags = courseDto.Modules.ToDictionary(x => x.Key, x => new m)
-            }
+        //        //var tags = courseDto.Modules.ToDictionary(x => x.Key, x => new m)
+        //    }
 
-            var courses = courseDtos.Select(courseDto =>
-            {
-                var course = new Course
-                {
-                    Name = courseDto.Name,
-                    Description = courseDto.Description
-                };
+        //    var courses = courseDtos.Select(courseDto =>
+        //    {
+        //        var course = new Course
+        //        {
+        //            Name = courseDto.Name,
+        //            Description = courseDto.Description
+        //        };
 
-                var modules = courseDto.Modules.Select(moduleDto =>
-                {
-                    var module = new Module { Name = moduleDto.Key };
-                    var tagDict = moduleDto.Tags.ToDictionary(x => x.Key, x => new Tag
-                    {
-                        InitialRating = x.InitialRating,
-                        Name = x.Name
-                    });
-                    module.Tags = tagDict.Select(x => x.Value).ToList();
-                    var lessons = moduleDto.Lessons.Select(lessonDto =>
-                    {
-                        var lesson = new Lesson
-                        {
-                            ActivityText = lessonDto.ActivityText,
-                            ActivityVideoHtml = lessonDto.ActivityVideoHtml,
-                            LessonText = lessonDto.LessonText,
-                            LessonVideoHtml = lessonDto.LessonVideoHtml,
-                            IsInitial = lessonDto.IsInitial,
-                            Name = lessonDto.Name
-                        };
-                        lesson.Problems = lessonDto.Problems.Select(problemDto =>
-                        {
-                            var problem = ObjectMapper.Map<Problem>(problemDto);
-                            problem.ProblemAnswerOptions = problemDto.ProblemAnswerOptions
-                                .Select(optionDto => ObjectMapper.Map<ProblemAnswerOption>(optionDto))
-                                .ToList();
-                            problem.ProblemTags = problemDto.TagRef.Select(tag => new ProblemTag
-                            {
-                                TagFk = tagDict[tag.TagKey],
-                                ProblemTagRating = tag.Rating
-                            }).ToList();
-                            return problem;
-                        }).ToList();
-                        return lesson;
-                    }).ToList();
-                    module.Lessons = lessons;
-                    return module;
-                }).ToList();
-                course.Modules = modules;
-                return course;
-            }).ToList();
+        //        var modules = courseDto.Modules.Select(moduleDto =>
+        //        {
+        //            var module = new Module { Name = moduleDto.Key };
+        //            var tagDict = moduleDto.Tags.ToDictionary(x => x.Key, x => new Tag
+        //            {
+        //                InitialRating = x.InitialRating,
+        //                Name = x.Name
+        //            });
+        //            module.Tags = tagDict.Select(x => x.Value).ToList();
+        //            var lessons = moduleDto.Lessons.Select(lessonDto =>
+        //            {
+        //                var lesson = new Lesson
+        //                {
+        //                    ActivityText = lessonDto.ActivityText,
+        //                    ActivityVideoHtml = lessonDto.ActivityVideoHtml,
+        //                    LessonText = lessonDto.LessonText,
+        //                    LessonVideoHtml = lessonDto.LessonVideoHtml,
+        //                    IsInitial = lessonDto.IsInitial,
+        //                    Name = lessonDto.Name
+        //                };
+        //                lesson.Problems = lessonDto.Problems.Select(problemDto =>
+        //                {
+        //                    var problem = ObjectMapper.Map<Problem>(problemDto);
+        //                    problem.ProblemAnswerOptions = problemDto.ProblemAnswerOptions
+        //                        .Select(optionDto => ObjectMapper.Map<ProblemAnswerOption>(optionDto))
+        //                        .ToList();
+        //                    problem.ProblemTags = problemDto.TagRef.Select(tag => new ProblemTag
+        //                    {
+        //                        TagFk = tagDict[tag.TagKey],
+        //                        ProblemTagRating = tag.Rating
+        //                    }).ToList();
+        //                    return problem;
+        //                }).ToList();
+        //                return lesson;
+        //            }).ToList();
+        //            module.Lessons = lessons;
+        //            return module;
+        //        }).ToList();
+        //        course.Modules = modules;
+        //        return course;
+        //    }).ToList();
 
-            foreach (var course in courses)
-            {
-                await _courseRepository.InsertAsync(course);
-            }
-        }
+        //    foreach (var course in courses)
+        //    {
+        //        await _courseRepository.InsertAsync(course);
+        //    }
+        //}
         #endregion
     }
 }

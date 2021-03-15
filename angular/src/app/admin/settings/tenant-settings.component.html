@@ -2,6 +2,24 @@
     <div class="content d-flex flex-column flex-column-fluid">
         <sub-header [title]="'Settings' | localize" [description]="'SettingsHeaderInfo' | localize">
             <div role="actions">
+                <div class="btn-group" dropdown>
+                    <button dropdownToggle type="button" class="btn btn-outline-success dropdown-toggle mr-1"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="far fa-file-excel"></i> {{"ExcelOperations" | localize}}
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right dropdown-excel-operations" *dropdownMenu>
+                        <a href="javascript:;" class="no-padding">
+                            <span class="fileinput-button">
+                                <p-fileUpload customUpload="true" name="ExcelFileUpload" #ExcelFileUpload
+                                              maxFileSize="10000000" auto="auto" accept=".xlsx"
+                                              (uploadHandler)="uploadExcel($event)" (onError)="onUploadExcelError()"
+                                              chooseLabel="Import Course">
+                                </p-fileUpload>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+
                 <button class="btn btn-primary" (click)="saveAll()"><i class="la la-floppy-o"></i>
                     {{"SaveAll" | localize}}</button>
             </div>
