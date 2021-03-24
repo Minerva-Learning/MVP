@@ -375,7 +375,6 @@ namespace Lean.Lessons
 
             var moduleId = learningProgress.CurrentLessonFk.ModuleId;
             var moduleTags = await _tagRepository.GetAll().AsNoTracking()
-                //.Where(x => x.ModuleId == moduleId)
                 .ToListAsync();
 
             var userTagRatings = await _userTagRatingRepository.GetAll().AsNoTracking()
@@ -475,79 +474,7 @@ namespace Lean.Lessons
             await CurrentUnitOfWork.SaveChangesAsync();
 
             await _courseRepository.InsertAsync(course);
-            //return await ImportRecipesExcel(file, false);
         }
-
-        //[UnitOfWork]
-        //[AbpAuthorize(AppPermissions.Pages_Administration)]
-        //public async Task ImportCourses(List<CourseImportDto> courseDtos)
-        //{
-        //    foreach (var courseDto in courseDtos)
-        //    {
-        //        var course = new Course
-        //        {
-        //            Name = courseDto.Name,
-        //            Description = courseDto.Description
-        //        };
-
-        //        //var tags = courseDto.Modules.ToDictionary(x => x.Key, x => new m)
-        //    }
-
-        //    var courses = courseDtos.Select(courseDto =>
-        //    {
-        //        var course = new Course
-        //        {
-        //            Name = courseDto.Name,
-        //            Description = courseDto.Description
-        //        };
-
-        //        var modules = courseDto.Modules.Select(moduleDto =>
-        //        {
-        //            var module = new Module { Name = moduleDto.Key };
-        //            var tagDict = moduleDto.Tags.ToDictionary(x => x.Key, x => new Tag
-        //            {
-        //                InitialRating = x.InitialRating,
-        //                Name = x.Name
-        //            });
-        //            module.Tags = tagDict.Select(x => x.Value).ToList();
-        //            var lessons = moduleDto.Lessons.Select(lessonDto =>
-        //            {
-        //                var lesson = new Lesson
-        //                {
-        //                    ActivityText = lessonDto.ActivityText,
-        //                    ActivityVideoHtml = lessonDto.ActivityVideoHtml,
-        //                    LessonText = lessonDto.LessonText,
-        //                    LessonVideoHtml = lessonDto.LessonVideoHtml,
-        //                    IsInitial = lessonDto.IsInitial,
-        //                    Name = lessonDto.Name
-        //                };
-        //                lesson.Problems = lessonDto.Problems.Select(problemDto =>
-        //                {
-        //                    var problem = ObjectMapper.Map<Problem>(problemDto);
-        //                    problem.ProblemAnswerOptions = problemDto.ProblemAnswerOptions
-        //                        .Select(optionDto => ObjectMapper.Map<ProblemAnswerOption>(optionDto))
-        //                        .ToList();
-        //                    problem.ProblemTags = problemDto.TagRef.Select(tag => new ProblemTag
-        //                    {
-        //                        TagFk = tagDict[tag.TagKey],
-        //                        ProblemTagRating = tag.Rating
-        //                    }).ToList();
-        //                    return problem;
-        //                }).ToList();
-        //                return lesson;
-        //            }).ToList();
-        //            module.Lessons = lessons;
-        //            return module;
-        //        }).ToList();
-        //        course.Modules = modules;
-        //        return course;
-        //    }).ToList();
-
-        //    foreach (var course in courses)
-        //    {
-        //        await _courseRepository.InsertAsync(course);
-        //    }
-        //}
         #endregion
     }
 }

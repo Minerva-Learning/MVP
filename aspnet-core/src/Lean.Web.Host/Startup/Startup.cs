@@ -301,7 +301,7 @@ namespace Lean.Web.Startup
 
                 app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint(_appConfiguration["App:SwaggerEndPoint"], "Lean API V1");
+                    options.SwaggerEndpoint(_appConfiguration["App:SwaggerEndPoint"], "Learnatric API V1");
                     options.IndexStream = () => Assembly.GetExecutingAssembly()
                         .GetManifestResourceStream("Lean.Web.wwwroot.swagger.ui.index.html");
                     options.InjectBaseUrl(_appConfiguration["App:ServerRootAddress"]);
