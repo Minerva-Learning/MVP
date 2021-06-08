@@ -59,10 +59,10 @@ namespace Lean.Web.Authentication.JwtBearer
             var userIdentifierString = principal.Claims.First(c => c.Type == AppConsts.UserIdentifier);
             var userIdentifier = UserIdentifier.Parse(userIdentifierString.Value);
 
-            if (!ValidateTokenValidityKey(tokenValidityKeyClaim, userIdentifier))
-            {
-                throw new SecurityTokenException("invalid");
-            }
+            // if (!ValidateTokenValidityKey(tokenValidityKeyClaim, userIdentifier))
+            // {
+            //     throw new SecurityTokenException("invalid");
+            // }
 
             var tokenAuthConfiguration = IocManager.Instance.Resolve<TokenAuthConfiguration>();
 

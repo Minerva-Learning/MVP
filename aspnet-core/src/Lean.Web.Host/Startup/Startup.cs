@@ -204,16 +204,16 @@ namespace Lean.Web.Startup
                 options.UseAbpRequestLocalization = false; //used below: UseAbpRequestLocalization
             });
 
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseStatusCodePagesWithRedirects("~/Error?statusCode={0}");
-                app.UseExceptionHandler("/Error");
-            }
-
+            // if (env.IsDevelopment())
+            // {
+            //     app.UseDeveloperExceptionPage();
+            // }
+            // else
+            // {
+            //     app.UseStatusCodePagesWithRedirects("~/Error?statusCode={0}");
+            //     app.UseExceptionHandler("/Error");
+            // }
+            app.UseDeveloperExceptionPage();
             app.UseStaticFiles();
             app.UseRouting();
 

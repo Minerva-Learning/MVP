@@ -13,22 +13,22 @@ namespace Lean.Url
 
         public string CreateEmailActivationUrlFormat(int? tenantId)
         {
-            throw new NotImplementedException();
+            return "NotConfigured";
         }
 
         public string CreatePasswordResetUrlFormat(int? tenantId)
         {
-            throw new NotImplementedException();
+            return "";
         }
 
         public string CreateEmailActivationUrlFormat(string tenancyName)
         {
-            throw new NotImplementedException();
+             return "";
         }
 
         public string CreatePasswordResetUrlFormat(string tenancyName)
         {
-            throw new NotImplementedException();
+             return "";
         }
     }
 }

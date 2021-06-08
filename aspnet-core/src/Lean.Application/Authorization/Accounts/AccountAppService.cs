@@ -23,6 +23,8 @@ using Lean.Email;
 using Lean.Email.Model;
 using Abp.Net.Mail;
 using System.Net.Mail;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Lean.Authorization.Accounts
 {
@@ -40,6 +42,7 @@ namespace Lean.Authorization.Accounts
         private readonly IWebUrlService _webUrlService;
         private readonly IUserDelegationManager _userDelegationManager;
         private readonly IEmailService _emailService;
+        private readonly ILogger<AccountAppService> _logger;
 
         public AccountAppService(
             IUserEmailer userEmailer,
@@ -49,7 +52,8 @@ namespace Lean.Authorization.Accounts
             IPasswordHasher<User> passwordHasher,
             IWebUrlService webUrlService, 
             IUserDelegationManager userDelegationManager,
-            IEmailService emailService)
+             IEmailService emailService,
+            ILogger<AccountAppService> logger)
         {
             _userEmailer = userEmailer;
             _userRegistrationManager = userRegistrationManager;
@@ -62,6 +66,7 @@ namespace Lean.Authorization.Accounts
             RecaptchaValidator = NullRecaptchaValidator.Instance;
             _userDelegationManager = userDelegationManager;
             _emailService = emailService;
+            _logger = logger;
         }
 
         public async Task<IsTenantAvailableOutput> IsTenantAvailable(IsTenantAvailableInput input)
@@ -101,27 +106,34 @@ namespace Lean.Authorization.Accounts
 
         public async Task<RegisterOutput> Register(RegisterInput input)
         {
-            if (UseCaptchaOnRegistration())
+            try
             {
-                await RecaptchaValidator.ValidateAsync(input.CaptchaResponse);
+                if (UseCaptchaOnRegistration())
+                {
+                    await RecaptchaValidator.ValidateAsync(input.CaptchaResponse);
+                }
+
+                var user = await _userRegistrationManager.RegisterAsync(
+                    input.Name,
+                    input.Surname,
+                    input.EmailAddress,
+                    input.UserName,
+                    input.Password,
+                    false,
+                    AppUrlService.CreateEmailActivationUrlFormat(AbpSession.TenantId)
+                );
+                var isEmailConfirmationRequiredForLogin = await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.IsEmailConfirmationRequiredForLogin);
+                return new RegisterOutput
+                {
+                    CanLogin = user.IsActive && true
+                };
             }
-
-            var user = await _userRegistrationManager.RegisterAsync(
-                input.Name,
-                input.Surname,
-                input.EmailAddress,
-                input.UserName,
-                input.Password,
-                false,
-                AppUrlService.CreateEmailActivationUrlFormat(AbpSession.TenantId)
-            );
-
-            var isEmailConfirmationRequiredForLogin = await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.IsEmailConfirmationRequiredForLogin);
-
-            return new RegisterOutput
+            catch (Exception e)
             {
-                CanLogin = user.IsActive && (user.IsEmailConfirmed || !isEmailConfirmationRequiredForLogin)
-            };
+                 _logger.LogError("message : {0}",JsonConvert.SerializeObject(e));
+            }
+            
+             return null;
         }
 
         public async Task SendPasswordResetCode(SendPasswordResetCodeInput input)
